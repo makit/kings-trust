@@ -8,10 +8,10 @@ export default function Footer() {
         <div className="grid md:grid-cols-4 gap-8">
           {/* About */}
           <div>
-            <h3 className="text-white font-semibold mb-4">About</h3>
+            <h3 className="text-white font-semibold mb-4">King&apos;s Trust Career AI</h3>
             <p className="text-sm mb-4">
-              A platform to help users discover career opportunities based on their skills 
-              using ESCO taxonomy data.
+              Helping young people discover career opportunities based on their skills 
+              using European Skills taxonomy data.
             </p>
             <div className="flex gap-3">
               <a href="https://github.com" className="hover:text-white transition-colors">
@@ -97,16 +97,16 @@ export default function Footer() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
           <p>
-            © {new Date().getFullYear()} ESCO Skills Platform. Data from{' '}
+            © {new Date().getFullYear()} The King&apos;s Trust Career AI. Powered by{' '}
             <a
               href="https://esco.ec.europa.eu/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary-400 hover:text-primary-300"
             >
-              ESCO
-            </a>
-            .
+              European Skills
+            </a>{' '}
+            taxonomy data.
           </p>
         </div>
       </div>

@@ -18,6 +18,7 @@ interface QuizResult {
   }>;
   topOccupations: Array<{
     occupation: {
+      id: string;
       preferredLabel: string;
       conceptUri: string;
     };
@@ -189,7 +190,7 @@ export default function QuizResultsPage() {
           {result.topOccupations.slice(0, 10).map((match, i) => (
             <Link
               key={i}
-              href={`/occupations/${match.occupation.conceptUri.split('/').pop()}`}
+              href={`/occupations/${match.occupation.id}`}
               className="block p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:shadow-md transition-all"
             >
               <div className="flex items-center justify-between">

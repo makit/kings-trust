@@ -162,6 +162,22 @@ export async function getSkillById(id: string): Promise<Skill | undefined> {
   return await db.get<Skill>('SELECT * FROM skills WHERE id = ?', id);
 }
 
+export async function getSkillOrGroupByCodeOrId(codeOrId: string): Promise<{ id: string; preferred_label: string } | undefined> {
+  const db = await getDatabase();
+  
+  // Try to find as skill by ID
+  let result = await db.get<Skill>('SELECT id, preferred_label FROM skills WHERE id = ?', codeOrId);
+  if (result) return result;
+  
+  // Try to find as skill group by code (like S2.2.1)
+  result = await db.get<any>('SELECT id, preferred_label FROM skill_groups WHERE code = ?', codeOrId);
+  if (result) return result;
+  
+  // Try to find as skill group by ID
+  result = await db.get<any>('SELECT id, preferred_label FROM skill_groups WHERE id = ?', codeOrId);
+  return result;
+}
+
 export async function getSkillsForOccupation(occupationId: string): Promise<{
   essential: Skill[];
   optional: Skill[];

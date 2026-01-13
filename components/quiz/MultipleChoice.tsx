@@ -54,7 +54,7 @@ export default function MultipleChoice({ options, onSubmit, disabled }: Props) {
       <button
         onClick={handleSubmit}
         disabled={disabled || !selected}
-        className="w-full mt-6 bg-primary text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full mt-6 bg-primary-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         Continue
       </button>

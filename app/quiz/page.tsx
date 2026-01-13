@@ -19,7 +19,7 @@ export default function QuizPage() {
           Take our AI-powered quiz to find out what you're great at
         </p>
         <p className="text-lg text-gray-500">
-          Designed for young people by The King's Trust
+          Designed for young people by The King&apos;s Trust
         </p>
       </div>
 
@@ -138,7 +138,7 @@ export default function QuizPage() {
       <div className="text-center">
         <Link
           href="/quiz/start"
-          className="inline-block bg-primary text-white px-12 py-4 rounded-lg text-lg font-semibold hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl"
+          className="inline-block bg-slate-50 px-12 py-4 rounded-lg text-lg font-semibold hover:bg-primary/90 transition-colors shadow-lg hover:shadow-xl"
         >
           Start the Quiz
         </Link>

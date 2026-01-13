@@ -18,7 +18,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary-600">
             <Briefcase size={28} />
-            <span>ESCO Platform</span>
+            <span>King's Trust PoC</span>
           </Link>
 
           {/* Navigation */}
@@ -42,16 +42,6 @@ export default function Header() {
               }`}
             >
               Occupations
-            </Link>
-            <Link
-              href="/matcher"
-              className={`font-medium transition-colors ${
-                isActive('/matcher')
-                  ? 'text-primary-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Matcher
             </Link>
             <Link
               href="/quiz"

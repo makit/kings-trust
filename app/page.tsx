@@ -11,8 +11,8 @@ export default function HomePage() {
             Discover Your Career Path
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Explore occupations matched to your skills using the ESCO (European Skills, Competences, 
-            Qualifications and Occupations) taxonomy. Find the perfect career fit.
+            Explore career opportunities matched to your skills with The King&apos;s Trust Career AI.
+            Powered by European Skills taxonomy data.
           </p>
           <div className="flex gap-4 justify-center">
             <Link
@@ -118,7 +118,7 @@ export default function HomePage() {
           </div>
           <div>
             <div className="text-4xl font-bold text-primary-600 mb-2">100%</div>
-            <div className="text-gray-600">Based on ESCO Data</div>
+            <div className="text-gray-600">Powered by European Skills Data</div>
           </div>
         </div>
       </div>

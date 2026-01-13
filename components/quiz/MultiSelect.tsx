@@ -72,7 +72,7 @@ export default function MultiSelect({ options, onSubmit, disabled, description }
         <button
           onClick={handleSubmit}
           disabled={disabled || selected.size === 0}
-          className="bg-primary text-white py-3 px-8 rounded-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="bg-primary-600 text-white py-3 px-8 rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Continue
         </button>

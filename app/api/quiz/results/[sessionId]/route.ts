@@ -85,6 +85,7 @@ export async function GET(
       topOccupations: occupationMatches.slice(0, 10).map(match => ({
         ...match,
         occupation: {
+          id: match.occupation.id,
           preferredLabel: match.occupation.preferred_label,
           conceptUri: match.occupation.origin_uri
         }

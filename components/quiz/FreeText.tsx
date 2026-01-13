@@ -41,7 +41,7 @@ export default function FreeText({ onSubmit, disabled, placeholder, minLength = 
         <button
           onClick={handleSubmit}
           disabled={disabled || text.trim().length < minLength}
-          className="bg-primary text-white py-3 px-8 rounded-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="bg-primary-600 text-white py-3 px-8 rounded-lg font-semibold hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           Continue
         </button>
