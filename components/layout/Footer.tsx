@@ -1,112 +1,16 @@
 import Link from 'next/link';
-import { Github, Mail } from 'lucide-react';
+import { Heart } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-4 gap-8">
-          {/* About */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">King&apos;s Trust Career AI</h3>
-            <p className="text-sm mb-4">
-              Helping young people discover career opportunities based on their skills 
-              using European Skills taxonomy data.
-            </p>
-            <div className="flex gap-3">
-              <a href="https://github.com" className="hover:text-white transition-colors">
-                <Github size={20} />
-              </a>
-              <a href="mailto:contact@example.com" className="hover:text-white transition-colors">
-                <Mail size={20} />
-              </a>
-            </div>
-          </div>
-
-          {/* Explore */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Explore</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/skills" className="hover:text-white transition-colors">
-                  Browse Skills
-                </Link>
-              </li>
-              <li>
-                <Link href="/occupations" className="hover:text-white transition-colors">
-                  Browse Occupations
-                </Link>
-              </li>
-              <li>
-                <Link href="/isco-groups" className="hover:text-white transition-colors">
-                  ISCO Groups
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Tools */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Tools</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/matcher" className="hover:text-white transition-colors">
-                  Skills Matcher
-                </Link>
-              </li>
-              <li>
-                <Link href="/quiz" className="hover:text-white transition-colors">
-                  Skills Quiz
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a
-                  href="https://esco.ec.europa.eu/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                >
-                  ESCO Portal
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://tabiya.tech/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                >
-                  Tabiya Open Taxonomy
-                </a>
-              </li>
-              <li>
-                <Link href="/about" className="hover:text-white transition-colors">
-                  About This Platform
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
-          <p>
-            © {new Date().getFullYear()} The King&apos;s Trust Career AI. Powered by{' '}
-            <a
-              href="https://esco.ec.europa.eu/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary-400 hover:text-primary-300"
-            >
-              European Skills
-            </a>{' '}
-            taxonomy data.
+    <footer className="bg-white border-t-2 border-brand-red/10 mt-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <p className="text-sm text-[#323232]/70 flex items-center gap-2">
+            Made with <Heart size={16} className="text-brand-red fill-brand-red inline animate-pulse" /> by King&apos;s Trust
+          </p>
+          <p className="text-xs text-[#323232]/50">
+            Helping young people discover their career path
           </p>
         </div>
       </div>

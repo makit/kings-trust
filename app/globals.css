@@ -4,11 +4,55 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: #f2f2f2;
+    --foreground: #323232;
+    --brand-red: #cc0033;
+    --brand-green: #28d796;
+  }
+  
+  * {
+    @apply transition-colors duration-200;
   }
 }
 
 body {
-  @apply bg-gray-50 text-gray-900;
+  @apply bg-[#f2f2f2] text-[#323232] font-sans;
+}
+
+/* Mobile-first cute animations */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+.float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f2f2f2;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cc0033;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a80029;
 }

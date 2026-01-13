@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Clock, Brain } from 'lucide-react';
+import { Sparkles, Trophy, Target } from 'lucide-react';
 import MultipleChoice from '@/components/quiz/MultipleChoice';
 import MultiSelect from '@/components/quiz/MultiSelect';
 import FreeText from '@/components/quiz/FreeText';
@@ -33,12 +33,12 @@ export default function QuizSessionPage() {
   const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 20, percentage: 0 });
   const [startTime] = useState(Date.now());
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Load initial question
   useEffect(() => {
     async function loadFirstQuestion() {
       try {
-        // The session was created, so we start with the first onboarding question
         const firstQuestion = {
           question_id: 'onboarding_1',
           phase: 1,
@@ -74,6 +74,7 @@ export default function QuizSessionPage() {
     if (!question) return;
 
     setSubmitting(true);
+    setShowSuccess(true);
 
     try {
       const responseTime = Date.now() - startTime;
@@ -95,25 +96,30 @@ export default function QuizSessionPage() {
 
       const data = await res.json();
 
-      // Update progress
-      setProgress(data.progress);
+      // Show success animation
+      setTimeout(() => {
+        setShowSuccess(false);
+        
+        // Update progress
+        setProgress(data.progress);
 
-      // Check if quiz is complete
-      if (data.isComplete) {
-        router.push(`/quiz/${sessionId}/results`);
-        return;
-      }
+        // Check if quiz is complete
+        if (data.isComplete) {
+          router.push(`/quiz/${sessionId}/results`);
+          return;
+        }
 
-      // Load next question
-      if (data.nextQuestion) {
-        setQuestion(data.nextQuestion);
-      } else {
-        // No more questions
-        router.push(`/quiz/${sessionId}/results`);
-      }
+        // Load next question
+        if (data.nextQuestion) {
+          setQuestion(data.nextQuestion);
+        } else {
+          router.push(`/quiz/${sessionId}/results`);
+        }
+      }, 1000);
     } catch (error) {
       console.error('Error submitting answer:', error);
       alert('Failed to submit answer. Please try again.');
+      setShowSuccess(false);
     } finally {
       setSubmitting(false);
     }
@@ -121,115 +127,135 @@ export default function QuizSessionPage() {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-24 max-w-md text-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-6"></div>
-        <h2 className="text-2xl font-semibold mb-2">Loading quiz...</h2>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block bg-gradient-to-br from-brand-red to-brand-red/80 p-4 rounded-3xl mb-4 animate-bounce">
+            <Sparkles size={32} className="text-white" />
+          </div>
+          <h2 className="text-2xl font-semibold text-[#323232] mb-2">Loading your quiz...</h2>
+        </div>
       </div>
     );
   }
 
   if (!question) {
     return (
-      <div className="container mx-auto px-4 py-24 max-w-md text-center">
-        <p className="text-gray-600">No question available</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-[#323232]/60">No question available</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      {/* Progress Bar */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-medium text-gray-700">
-            Question {progress.current + 1} of {progress.total}
-          </span>
-          <span className="text-sm text-gray-500">{progress.percentage}% complete</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-primary h-2 rounded-full transition-all duration-300"
-            style={{ width: `${progress.percentage}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Phase Indicator */}
-      <div className="flex items-center gap-2 mb-6">
-        <Brain className="w-5 h-5 text-primary" />
-        <span className="text-sm font-medium text-gray-600">
-          {question.phase === 1 ? 'Getting to know you' : 'Discovering your skills'}
-        </span>
-      </div>
-
-      {/* Question Card */}
-      <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          {question.text}
-        </h2>
-        
-        {question.description && (
-          <p className="text-gray-600 mb-6">{question.description}</p>
-        )}
-
-        {question.estimated_time && (
-          <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-            <Clock className="w-4 h-4" />
-            <span>About {Math.round(question.estimated_time / 60)} minute{question.estimated_time >= 120 ? 's' : ''}</span>
+    <div className="min-h-screen pb-8">
+      {/* Success Animation Overlay */}
+      {showSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm animate-bounce-in">
+          <div className="bg-white rounded-3xl p-8 shadow-2xl text-center transform scale-110">
+            <div className="text-6xl mb-2">🎉</div>
+            <p className="text-xl font-bold text-brand-red">Nice one!</p>
           </div>
-        )}
-
-        {/* Render appropriate question type */}
-        <div className="mt-6">
-          {question.type === 'multiple-choice' && (
-            <MultipleChoice
-              options={question.options || []}
-              onSubmit={submitAnswer}
-              disabled={submitting}
-            />
-          )}
-
-          {question.type === 'multi-select' && (
-            <MultiSelect
-              options={question.options || []}
-              onSubmit={submitAnswer}
-              disabled={submitting}
-            />
-          )}
-
-          {question.type === 'free-text' && (
-            <FreeText
-              onSubmit={submitAnswer}
-              disabled={submitting}
-              placeholder="Tell us about your experiences..."
-            />
-          )}
-
-          {question.type === 'scale' && (
-            <ScaleQuestion
-              options={question.options || []}
-              onSubmit={submitAnswer}
-              disabled={submitting}
-            />
-          )}
-
-          {question.type === 'scenario' && (
-            <MultiSelect
-              options={question.options || []}
-              onSubmit={submitAnswer}
-              disabled={submitting}
-              description="Choose all that apply"
-            />
-          )}
-        </div>
-      </div>
-
-      {submitting && (
-        <div className="text-center text-gray-600">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-          <p>Processing your answer...</p>
         </div>
       )}
+
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6">
+        {/* Progress Bar */}
+        <div className="mb-6">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <Target size={18} className="text-brand-red" />
+              <span className="text-sm font-bold text-[#323232]">
+                Question {progress.current + 1} of {progress.total}
+              </span>
+            </div>
+            <span className="text-sm font-semibold text-secondary-500">{progress.percentage}%</span>
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-brand-red to-secondary-500 h-3 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progress.percentage}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Phase Indicator */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className={`
+            px-3 py-1 rounded-full text-xs font-semibold
+            ${question.phase === 1 
+              ? 'bg-brand-red/10 text-brand-red' 
+              : 'bg-secondary-500/10 text-secondary-500'
+            }
+          `}>
+            {question.phase === 1 ? '👋 Getting to know you' : '💪 Discovering your skills'}
+          </div>
+        </div>
+
+        {/* Question Card */}
+        <div className="bg-white rounded-3xl shadow-xl p-6 mb-6 border-2 border-brand-red/10 animate-slide-up">
+          <h2 className="text-2xl font-bold text-[#323232] mb-3">
+            {question.text}
+          </h2>
+          
+          {question.description && (
+            <p className="text-[#323232]/70 mb-6 text-base">{question.description}</p>
+          )}
+
+          {/* Render appropriate question type */}
+          <div className="mt-6">
+            {question.type === 'multiple-choice' && (
+              <MultipleChoice
+                options={question.options || []}
+                onSubmit={submitAnswer}
+                disabled={submitting}
+              />
+            )}
+
+            {question.type === 'multi-select' && (
+              <MultiSelect
+                options={question.options || []}
+                onSubmit={submitAnswer}
+                disabled={submitting}
+              />
+            )}
+
+            {question.type === 'free-text' && (
+              <FreeText
+                onSubmit={submitAnswer}
+                disabled={submitting}
+                placeholder="Tell us about your experiences..."
+              />
+            )}
+
+            {question.type === 'scale' && (
+              <ScaleQuestion
+                options={question.options || []}
+                onSubmit={submitAnswer}
+                disabled={submitting}
+              />
+            )}
+
+            {question.type === 'scenario' && (
+              <MultiSelect
+                options={question.options || []}
+                onSubmit={submitAnswer}
+                disabled={submitting}
+                description="Choose all that apply"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Motivation Message */}
+        <div className="text-center">
+          <p className="text-sm text-[#323232]/60">
+            {progress.percentage < 30 && "You're doing great! Keep going! 💪"}
+            {progress.percentage >= 30 && progress.percentage < 60 && "Awesome progress! You're almost halfway! 🎯"}
+            {progress.percentage >= 60 && progress.percentage < 90 && "Nearly there! Keep it up! 🚀"}
+            {progress.percentage >= 90 && "Final stretch! You've got this! 🏆"}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

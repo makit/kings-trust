@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Briefcase, Search } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export default function Header() {
   const pathname = usePathname();
@@ -12,53 +12,34 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white border-b-2 border-brand-red/10 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary-600">
-            <Briefcase size={28} />
-            <span>King's Trust PoC</span>
+          <Link href="/" className="flex items-center gap-2 font-bold text-lg group">
+            <div className="bg-gradient-to-br from-brand-red to-brand-red/80 p-2 rounded-2xl transform group-hover:rotate-12 transition-transform duration-300">
+              <Sparkles size={20} className="text-white" />
+            </div>
+            <span className="text-[#323232]">King&apos;s Trust</span>
           </Link>
 
           {/* Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
-            <Link
-              href="/skills"
-              className={`font-medium transition-colors ${
-                isActive('/skills')
-                  ? 'text-primary-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Skills
-            </Link>
-            <Link
-              href="/occupations"
-              className={`font-medium transition-colors ${
-                isActive('/occupations')
-                  ? 'text-primary-600'
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              Occupations
-            </Link>
+          <nav className="flex items-center gap-3">
             <Link
               href="/quiz"
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                isActive('/quiz')
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-primary-100 text-primary-600 hover:bg-primary-200'
-              }`}
+              className={`
+                px-5 py-2.5 rounded-full font-semibold text-sm
+                transform hover:scale-105 active:scale-95
+                transition-all duration-200 shadow-md hover:shadow-lg
+                ${isActive('/quiz')
+                  ? 'bg-brand-red text-white'
+                  : 'bg-white text-brand-red border-2 border-brand-red'
+                }
+              `}
             >
-              Take Quiz
+              ✨ Take Quiz
             </Link>
           </nav>
-
-          {/* Mobile menu button - simplified for now */}
-          <button className="md:hidden p-2 text-gray-600">
-            <Search size={24} />
-          </button>
         </div>
       </div>
     </header>
