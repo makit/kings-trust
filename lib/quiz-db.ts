@@ -40,6 +40,13 @@ export interface QuizSession {
   completed_at?: string;
   last_question_id?: string;
   can_resume: boolean;
+  
+  // Bayesian quiz state (new fields)
+  quiz_stage?: 1 | 2; // 1 = orientation, 2 = adaptive
+  stage1_complete?: boolean;
+  bayesian_state?: string; // JSON of BayesianQuizState
+  cluster_probabilities?: string; // JSON of cluster distribution
+  questions_asked?: string[]; // Array of question IDs
 }
 
 export interface IdentifiedSkill {
@@ -194,6 +201,26 @@ export async function updateQuizSession(
     fields.push('completed_at = ?');
     values.push(updates.completed_at);
   }
+  if (updates.quiz_stage !== undefined) {
+    fields.push('quiz_stage = ?');
+    values.push(updates.quiz_stage);
+  }
+  if (updates.stage1_complete !== undefined) {
+    fields.push('stage1_complete = ?');
+    values.push(updates.stage1_complete ? 1 : 0);
+  }
+  if (updates.bayesian_state !== undefined) {
+    fields.push('bayesian_state = ?');
+    values.push(updates.bayesian_state);
+  }
+  if (updates.cluster_probabilities !== undefined) {
+    fields.push('cluster_probabilities = ?');
+    values.push(updates.cluster_probabilities);
+  }
+  if (updates.questions_asked !== undefined) {
+    fields.push('questions_asked = ?');
+    values.push(JSON.stringify(updates.questions_asked));
+  }
   
   fields.push('updated_at = datetime("now")');
   values.push(sessionId);
@@ -317,7 +344,9 @@ function parseSession(row: any): QuizSession {
     interest_categories: row.interest_categories ? JSON.parse(row.interest_categories) : [],
     identified_skills: row.identified_skills ? JSON.parse(row.identified_skills) : [],
     uncertain_skills: row.uncertain_skills ? JSON.parse(row.uncertain_skills) : [],
-    can_resume: !!row.can_resume
+    can_resume: !!row.can_resume,
+    stage1_complete: !!row.stage1_complete,
+    questions_asked: row.questions_asked ? JSON.parse(row.questions_asked) : []
   };
 }
 

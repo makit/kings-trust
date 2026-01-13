@@ -1,42 +1,44 @@
 /**
  * POST /api/quiz/start
- * Start a new quiz session
+ * Start a new quiz session with Bayesian adaptive quiz
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createQuizSession } from '@/lib/quiz-db';
+import { createQuizSession, updateQuizSession } from '@/lib/quiz-db';
+import { initializeBayesianState } from '@/lib/bayesian-quiz-engine';
+import { serializeBayesianState } from '@/lib/adaptive-quiz-controller';
+import { getStage1Questions } from '@/lib/quiz-stage1-questions';
 
 export async function POST(request: NextRequest) {
   try {
     // Create new quiz session
     const session = await createQuizSession();
     
-    // Return first onboarding question
-    const firstQuestion = {
-      question_id: 'onboarding_1',
-      phase: 1,
-      type: 'multiple-choice',
-      text: 'What are you up to right now?',
-      description: 'This helps us understand your current situation',
-      options: [
-        { value: 'in-school', label: 'In school/college' },
-        { value: 'just-finished', label: 'Just finished school/college' },
-        { value: 'first-job', label: 'Looking for my first job' },
-        { value: 'between-jobs', label: 'Between jobs' },
-        { value: 'part-time', label: 'Working part-time' },
-        { value: 'volunteering', label: 'Volunteering' },
-        { value: 'taking-break', label: 'Taking a break/figuring things out' },
-        { value: 'other', label: 'Other' }
-      ],
-      target_skills: [],
-      is_generated: false,
-      estimated_time: 15
-    };
+    // Initialize Bayesian state
+    const bayesianState = initializeBayesianState(session.session_id);
+    
+    // Update session with initial Bayesian state
+    await updateQuizSession(session.session_id, {
+      quiz_stage: 1,
+      stage1_complete: false,
+      bayesian_state: serializeBayesianState(bayesianState),
+      cluster_probabilities: JSON.stringify(bayesianState.clusterDistribution),
+      questions_asked: []
+    });
+    
+    // Get first Stage 1 question
+    const stage1Questions = getStage1Questions();
+    const firstQuestion = stage1Questions[0];
     
     return NextResponse.json({
       sessionId: session.session_id,
       firstQuestion,
-      estimatedTime: 15 // minutes
+      quizInfo: {
+        stage: 1,
+        stageDescription: 'Getting to know you',
+        estimatedQuestions: '14-23 questions',
+        estimatedTime: '5-8 minutes'
+      }
     });
     
   } catch (error: any) {
