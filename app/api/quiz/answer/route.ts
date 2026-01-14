@@ -12,6 +12,7 @@ import {
   getResponsesForSession
 } from '@/lib/quiz-db';
 import { getSkillOrGroupByCodeOrId } from '@/lib/database';
+import { translateSkillCode, isLegacySkillCode } from '@/lib/skill-code-mapping';
 import {
   getNextAdaptiveQuestion,
   processAdaptiveAnswer,
@@ -74,7 +75,31 @@ export async function POST(request: NextRequest) {
     bayesianState = processAdaptiveAnswer(bayesianState, currentQuestion, response);
     
     // Extract any skills from the answer
-    const skillsFromAnswer = await extractSkillsFromAnswer(currentQuestion, response);
+    let skillsFromAnswer = await extractSkillsFromAnswer(currentQuestion, response);
+    
+    // If this is an AI scenario question, analyze the free-text response
+    if (currentQuestion.type === 'scenario' && typeof response === 'string') {
+      console.log('[Quiz Answer] Analyzing AI scenario response...');
+      console.log('[Quiz Answer] Response text:', response.substring(0, 100) + '...');
+      console.log('[Quiz Answer] AWS credentials configured:', !!process.env.AWS_ACCESS_KEY_ID);
+      try {
+        const startTime = Date.now();
+        const { analyzeAIResponse } = await import('@/lib/ai-adaptive-questions');
+        const aiSkills = await analyzeAIResponse(
+          currentQuestion,
+          response,
+          currentQuestion.targetSkills || []
+        );
+        const analysisTime = Date.now() - startTime;
+        // Merge AI-detected skills with existing
+        skillsFromAnswer = [...skillsFromAnswer, ...aiSkills];
+        console.log('[Quiz Answer] AI analysis took', analysisTime, 'ms');
+        console.log('[Quiz Answer] AI detected skills:', aiSkills.length, aiSkills.map(s => s.skillLabel));
+      } catch (error) {
+        console.error('[Quiz Answer] Failed to analyze AI response:', error);
+        // Continue without AI analysis
+      }
+    }
     
     // Save response
     await saveResponse({
@@ -90,8 +115,8 @@ export async function POST(request: NextRequest) {
     // Merge skills with existing
     const updatedSkills = mergeSkills(session.identified_skills, skillsFromAnswer);
     
-    // Generate final skill list from Bayesian state
-    const finalSkills = extractSkillsFromState(bayesianState, updatedSkills);
+    // Generate final skill list from Bayesian state (now async)
+    const finalSkills = await extractSkillsFromState(bayesianState, updatedSkills);
     
     // Check for stage transitions
     let stageTransition = false;
@@ -133,6 +158,29 @@ export async function POST(request: NextRequest) {
     const progressSummary = generateProgressSummary(bayesianState);
     const progressMessage = generateProgressMessage(bayesianState);
     
+    // Generate cluster-based success message for variety
+    const topCluster = progressSummary.topClusters[0];
+    const clusterMessages = [
+      `Nice one! You might be a ${topCluster?.name}! 🎯`,
+      `Interesting choice! ${topCluster?.name} energy! ✨`,
+      `That tells us a lot! Getting ${topCluster?.name} vibes 💪`,
+      `Cool! We're learning about your ${topCluster?.name} side 🚀`,
+      `Great answer! Very ${topCluster?.name}-ish! 🌟`,
+      `Noted! Building your ${topCluster?.name} profile 📝`,
+      `Good stuff! ${topCluster?.name} traits shining through ⭐`,
+      `Love it! ${topCluster?.name} personality coming through 🎨`,
+      `Brilliant! That's so ${topCluster?.name}! 💡`,
+      `Perfect! Adding to your ${topCluster?.name} score 🎲`,
+      `Sweet! ${topCluster?.name} skills detected 🔍`,
+      `Amazing! Classic ${topCluster?.name} response 🎪`,
+      `Fantastic! ${topCluster?.name} vibes for sure 🌈`,
+      `Awesome sauce! ${topCluster?.name} all the way! 🎭`,
+      `Spot on! Definitely ${topCluster?.name} material 🎯`
+    ];
+    const successMessage = topCluster && questionsAsked.length > 2 
+      ? clusterMessages[Math.floor(Math.random() * clusterMessages.length)]
+      : null;
+    
     return NextResponse.json({
       nextQuestion,
       progress: {
@@ -149,6 +197,7 @@ export async function POST(request: NextRequest) {
         description: c.description,
         probability: Math.round((c.probability || 0) * 100)
       })),
+      successMessage,
       isComplete
     });
     
@@ -204,6 +253,22 @@ async function getCurrentAdaptiveQuestion(
     return stage2Question;
   }
   
+  // Check if this is an AI-generated scenario question
+  if (mappedQuestionId.startsWith('ai_scenario_')) {
+    console.log('[getCurrentAdaptiveQuestion] AI scenario question - reconstructing from session state');
+    // AI questions are dynamic, return a placeholder that will be handled specially
+    // The actual question data comes from the frontend
+    return {
+      question_id: mappedQuestionId,
+      type: 'scenario',
+      text: 'AI Generated Scenario',
+      description: '',
+      options: [{ value: 'free_text', label: 'Free text response' }],
+      targetSkills: [mappedQuestionId.split('_').pop() || ''], // Extract skill ID from question ID
+      difficulty: 3
+    } as AdaptiveQuestion;
+  }
+  
   console.log('[getCurrentAdaptiveQuestion] Question not found! Tried:', mappedQuestionId);
   return null;
 }
@@ -222,9 +287,11 @@ async function extractSkillsFromAnswer(question: AdaptiveQuestion, response: any
       // Extract skills from skillLikelihoods
       Object.entries(selectedOption.skillLikelihoods).forEach(([skillId, likelihood]) => {
         if (typeof likelihood === 'number' && likelihood > 0.5) {
+          // Translate legacy S-code to ESCO key_* format
+          const translatedSkillId = translateSkillCode(skillId);
           skills.push({
-            skillId,
-            skillLabel: skillId,
+            skillId: translatedSkillId,
+            skillLabel: translatedSkillId,
             confidence: Math.round(likelihood * 100),
             evidence: [question.question_id],
             source: 'direct' as const
@@ -240,9 +307,11 @@ async function extractSkillsFromAnswer(question: AdaptiveQuestion, response: any
       if (selectedOption?.skillLikelihoods) {
         Object.entries(selectedOption.skillLikelihoods).forEach(([skillId, likelihood]) => {
           if (typeof likelihood === 'number' && likelihood > 0.5) {
+            // Translate legacy S-code to ESCO key_* format
+            const translatedSkillId = translateSkillCode(skillId);
             skills.push({
-              skillId,
-              skillLabel: skillId,
+              skillId: translatedSkillId,
+              skillLabel: translatedSkillId,
               confidence: Math.round(likelihood * 100),
               evidence: [question.question_id],
               source: 'direct' as const
@@ -256,9 +325,11 @@ async function extractSkillsFromAnswer(question: AdaptiveQuestion, response: any
     const scaleValue = parseInt(response);
     if (!isNaN(scaleValue) && question.targetSkills) {
       question.targetSkills.forEach((skillId: string) => {
+        // Translate legacy S-code to ESCO key_* format
+        const translatedSkillId = translateSkillCode(skillId);
         skills.push({
-          skillId,
-          skillLabel: skillId,
+          skillId: translatedSkillId,
+          skillLabel: translatedSkillId,
           confidence: Math.min(scaleValue * 20, 100), // 1-5 scale to 20-100
           evidence: [question.question_id],
           source: 'direct' as const

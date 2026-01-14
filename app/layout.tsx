@@ -7,8 +7,8 @@ import Footer from '@/components/layout/Footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'ESCO Skills & Occupations Platform',
-  description: 'Discover career opportunities based on your skills using ESCO taxonomy data',
+  title: 'Kings Trust Career Bot',
+  description: 'Discover career opportunities',
 }
 
 export default function RootLayout({

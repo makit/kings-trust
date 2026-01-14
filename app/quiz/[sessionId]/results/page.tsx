@@ -20,9 +20,11 @@ interface QuizResult {
     occupation: {
       id: string;
       preferredLabel: string;
+      description?: string;
       conceptUri: string;
     };
     matchScore: number;
+    reasoning?: string;
   }>;
   aiInsights?: {
     executiveSummary: string;
@@ -35,10 +37,32 @@ interface QuizResult {
   userProfile: {
     currentSituation?: string;
     primaryGoal?: string;
+    dateOfBirth?: string;
+    location?: string;
   };
   stats: {
     questionsAnswered: number;
     totalSkillsIdentified: number;
+  };
+  debugInfo?: {
+    dob: string;
+    location: string;
+    topClusters: Array<{
+      id: string;
+      name: string;
+      probability: number;
+    }>;
+    totalSkills: number;
+    highConfidenceSkills: number;
+  };
+  clusterAnalysis?: {
+    description: string;
+    topClusters: Array<{
+      id: string;
+      name: string;
+      description: string;
+      probability: number;
+    }>;
   };
 }
 
@@ -95,6 +119,27 @@ export default function QuizResultsPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl">
+      {/* Debug Info Section (collapsible) */}
+      {result.debugInfo && (
+        <details className="bg-gray-50 border-2 border-gray-200 rounded-2xl p-4 mb-6">
+          <summary className="cursor-pointer font-semibold text-sm text-gray-700 hover:text-brand-red">
+            🔍 Debug Info (Click to expand)
+          </summary>
+          <div className="mt-4 space-y-2 text-sm">
+            <p><strong>DOB:</strong> {result.debugInfo.dob}</p>
+            <p><strong>Location:</strong> {result.debugInfo.location}</p>
+            <p><strong>Top Clusters:</strong></p>
+            <ul className="ml-4 space-y-1">
+              {result.debugInfo.topClusters.map((cluster: any, i: number) => (
+                <li key={i}>• {cluster.name}: {cluster.probability}%</li>
+              ))}
+            </ul>
+            <p><strong>Total Skills:</strong> {result.debugInfo.totalSkills}</p>
+            <p><strong>High Confidence Skills (≥60%):</strong> {result.debugInfo.highConfidenceSkills}</p>
+          </div>
+        </details>
+      )}
+
       {/* Hero Section */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-6">
@@ -105,6 +150,38 @@ export default function QuizResultsPage() {
           We've identified <strong>{result.stats.totalSkillsIdentified} skills</strong> and found <strong>{result.topOccupations.length} matching careers</strong>
         </p>
       </div>
+
+      {/* Cluster Analysis */}
+      {result.clusterAnalysis && result.clusterAnalysis.topClusters.length > 0 && (
+        <div className="bg-gradient-to-br from-brand-red/10 to-secondary-500/10 rounded-3xl p-6 mb-8 border-2 border-brand-red/20">
+          <h2 className="text-2xl font-bold text-[#323232] mb-3 flex items-center gap-2">
+            <span className="text-3xl">🎯</span>
+            Your Career Personality
+          </h2>
+          <p className="text-lg text-[#323232] mb-4">
+            {result.clusterAnalysis.description}
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {result.clusterAnalysis.topClusters.map((cluster: any, i: number) => (
+              <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-[#323232]">{cluster.name}</span>
+                  <span className="text-2xl">
+                    {i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-brand-red to-secondary-500 h-2 rounded-full"
+                    style={{ width: `${cluster.probability}%` }}
+                  />
+                </div>
+                <p className="text-sm text-[#323232]/70 mt-1">{cluster.probability}% match</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* AI Insights (if available) */}
       {result.aiInsights && (
@@ -188,30 +265,40 @@ export default function QuizResultsPage() {
         
         <div className="space-y-4">
           {result.topOccupations.slice(0, 10).map((match, i) => (
-            <Link
+            <div
               key={i}
-              href={`/occupations/${match.occupation.id}`}
-              className="block p-4 border-2 border-gray-200 rounded-lg hover:border-primary hover:shadow-md transition-all"
+              className="block p-5 border-2 border-gray-200 rounded-lg hover:border-primary hover:shadow-md transition-all"
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-lg text-gray-900 mb-1">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex-1">
+                  <h3 className="font-semibold text-xl text-gray-900 mb-1">
                     {match.occupation.preferredLabel}
                   </h3>
-                  <p className="text-sm text-gray-600">
-                    {match.matchScore}% match based on your skills
-                  </p>
+                  {match.occupation.description && (
+                    <p className="text-sm text-gray-600 mb-2">
+                      {match.occupation.description}
+                    </p>
+                  )}
+                  {match.reasoning && (
+                    <p className="text-sm text-brand-red/80 italic">
+                      💡 {match.reasoning}
+                    </p>
+                  )}
                 </div>
-                <div className="text-right">
+                <div className="text-right ml-4">
                   <div className="text-3xl font-bold text-primary">
                     {match.matchScore}%
                   </div>
                   <div className="text-xs text-gray-500">match</div>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
+        
+        <p className="text-sm text-gray-500 mt-6 text-center">
+          💡 Career suggestions powered by AI based on your demonstrated skills
+        </p>
       </div>
 
       {/* Growth Opportunities */}

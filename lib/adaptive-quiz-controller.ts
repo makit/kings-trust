@@ -63,11 +63,42 @@ export async function getNextAdaptiveQuestion(
       return null; // Quiz complete
     }
     
+    const progress = bayesianState.questionsAsked.length;
+    
+    // Check if we should inject an AI scenario question
+    const { shouldInjectAIQuestion, selectSkillForAIQuestion, generateAIScenarioQuestion } = 
+      await import('./ai-adaptive-questions');
+    
+    if (shouldInjectAIQuestion(bayesianState, progress)) {
+      console.log('[Quiz Controller] Injecting AI scenario question');
+      const targetSkill = await selectSkillForAIQuestion(bayesianState);
+      
+      if (targetSkill) {
+        const aiQuestion = await generateAIScenarioQuestion(
+          targetSkill,
+          {
+            dob: (session as any).date_of_birth,
+            location: (session as any).location,
+            responses: {}
+          },
+          progress
+        );
+        
+        if (aiQuestion) {
+          console.log('[Quiz Controller] Generated AI question for skill:', targetSkill);
+          console.log('[Quiz Controller] AI question metadata:', aiQuestion.metadata);
+          // Return the full AI question with all metadata intact
+          return aiQuestion;
+        } else {
+          console.warn('[Quiz Controller] Failed to generate AI question');
+        }
+      }
+    }
+    
     // Get question bank
     const allStage2Questions = getStage2QuestionBank();
     
     // Filter by difficulty based on progress (start easy, increase difficulty)
-    const progress = bayesianState.questionsAsked.length;
     let candidateQuestions = allStage2Questions;
     
     if (progress < 3) {
@@ -149,48 +180,70 @@ export function checkStage1Completion(
 /**
  * Extract skills from cluster distribution and direct evidence
  */
-export function extractSkillsFromState(
+export async function extractSkillsFromState(
   bayesianState: BayesianQuizState,
   directSkills: IdentifiedSkill[]
-): IdentifiedSkill[] {
+): Promise<IdentifiedSkill[]> {
+  // Import database function
+  const { getSkillOrGroupByCodeOrId } = await import('./database');
+  
   // Generate skill distribution
   const skillDistribution = generateSkillDistribution(
     bayesianState.clusterDistribution,
     directSkills
   );
   
-  // Convert top skills to IdentifiedSkill format
-  const clusterBasedSkills: IdentifiedSkill[] = skillDistribution.topK.map(skill => ({
-    skillId: skill.skillId,
-    skillLabel: skill.skillLabel,
-    confidence: Math.round(skill.probability * 100),
-    evidence: ['cluster-inference'],
-    source: 'inferred' as const,
-    proficiencyLevel: undefined
-  }));
+  // Convert top skills to IdentifiedSkill format and resolve labels
+  const clusterBasedSkillsPromises = skillDistribution.topK.map(async skill => {
+    // Try to resolve skill label from database
+    const skillData = await getSkillOrGroupByCodeOrId(skill.skillId);
+    return {
+      skillId: skill.skillId,
+      skillLabel: skillData?.preferred_label || skill.skillLabel || skill.skillId,
+      confidence: Math.round(skill.probability * 100),
+      evidence: ['cluster-inference'],
+      source: 'inferred' as const,
+      proficiencyLevel: undefined
+    };
+  });
+  
+  const clusterBasedSkills = await Promise.all(clusterBasedSkillsPromises);
   
   // Merge with direct skills (direct skills take priority)
   const skillMap = new Map<string, IdentifiedSkill>();
   
-  // Add cluster-based skills first
+  // Add cluster-based skills first (only if they resolved from database)
   for (const skill of clusterBasedSkills) {
-    if (skill.confidence >= 30) { // Threshold for inclusion
+    // Only include skills that were successfully resolved from database
+    // Skip ones where skillLabel is still just the skillId (means not found in DB)
+    if (skill.confidence >= 30 && skill.skillLabel !== skill.skillId) {
       skillMap.set(skill.skillId, skill);
     }
   }
   
-  // Override with direct skills (higher confidence)
+  // Override with direct skills (higher confidence), resolving labels as needed
   for (const skill of directSkills) {
+    // Resolve label if it's just the skillId
+    let skillLabel = skill.skillLabel;
+    if (skillLabel === skill.skillId || !skillLabel) {
+      const skillData = await getSkillOrGroupByCodeOrId(skill.skillId);
+      skillLabel = skillData?.preferred_label || skill.skillId;
+    }
+    
     if (skillMap.has(skill.skillId)) {
       const existing = skillMap.get(skill.skillId)!;
       skillMap.set(skill.skillId, {
         ...skill,
+        skillLabel,
         confidence: Math.max(existing.confidence, skill.confidence),
         evidence: [...new Set([...existing.evidence, ...skill.evidence])],
         source: 'validated' as const
       });
     } else {
-      skillMap.set(skill.skillId, skill);
+      // Only add if skill was successfully resolved
+      if (skillLabel !== skill.skillId) {
+        skillMap.set(skill.skillId, { ...skill, skillLabel });
+      }
     }
   }
   

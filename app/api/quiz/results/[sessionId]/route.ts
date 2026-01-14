@@ -8,8 +8,7 @@ import {
   getQuizSession, 
   getResponsesForSession 
 } from '@/lib/quiz-db';
-import { matchOccupationsToSkills } from '@/lib/database';
-import { generatePersonalizedInsights } from '@/lib/bedrock';
+import { suggestOccupationsFromSkills, generatePersonalizedInsights } from '@/lib/bedrock';
 
 export async function GET(
   request: NextRequest,
@@ -37,15 +36,81 @@ export async function GET(
     // Get all responses
     const responses = await getResponsesForSession(sessionId);
     
+    // Parse cluster probabilities and Bayesian state
+    const clusterProbabilities = session.cluster_probabilities 
+      ? JSON.parse(session.cluster_probabilities) 
+      : {};
+    const bayesianState = session.bayesian_state 
+      ? JSON.parse(session.bayesian_state) 
+      : null;
+    
+    // Log debug info
+    console.log('\n========== QUIZ RESULTS DEBUG ==========');
+    console.log('Session ID:', sessionId);
+    console.log('DOB:', session.date_of_birth || 'Not provided');
+    console.log('Location:', session.location || 'Not provided');
+    console.log('Questions Answered:', session.questions_answered);
+    console.log('\nCluster Probabilities:', clusterProbabilities);
+    console.log('\nIdentified Skills:', session.identified_skills.map(s => ({
+      skillId: s.skillId,
+      skillLabel: s.skillLabel,
+      confidence: s.confidence
+    })));
+    console.log('======================================\n');
+    
     // Extract skill IDs from identified skills
     const skillIds = session.identified_skills
       .filter(s => s.confidence >= 60)
       .map(s => s.skillId);
     
-    // Match occupations
-    const occupationMatches = skillIds.length > 0 
-      ? await matchOccupationsToSkills(skillIds)
-      : [];
+    // Get occupation suggestions from LLM based on skills
+    let occupationMatches = [];
+    try {
+      console.log('[Results] Requesting occupation suggestions from LLM...');
+      occupationMatches = await suggestOccupationsFromSkills(
+        session.identified_skills.map(s => ({
+          skillLabel: s.skillLabel,
+          confidence: s.confidence
+        })),
+        {
+          currentSituation: session.current_situation,
+          primaryGoal: session.primary_goal,
+          interests: session.interest_categories,
+          dateOfBirth: session.date_of_birth,
+          location: session.location
+        }
+      );
+      console.log('[Results] LLM suggested', occupationMatches.length, 'occupations');
+    } catch (error) {
+      console.error('[Results] Failed to get LLM occupation suggestions:', error);
+      // Provide fallback occupations if LLM fails
+      occupationMatches = [
+        {
+          occupation: {
+            preferredLabel: 'customer service representative',
+            description: 'Assist customers with inquiries and provide support'
+          },
+          matchScore: 70,
+          reasoning: 'Based on your communication and interpersonal skills'
+        },
+        {
+          occupation: {
+            preferredLabel: 'shop assistant',
+            description: 'Help customers in retail environments'
+          },
+          matchScore: 68,
+          reasoning: 'Your people skills and adaptability are valuable here'
+        },
+        {
+          occupation: {
+            preferredLabel: 'administrative assistant',
+            description: 'Provide administrative and organizational support'
+          },
+          matchScore: 65,
+          reasoning: 'Your organizational abilities are a good fit'
+        }
+      ];
+    }
     
     // Generate AI insights (if Bedrock is configured)
     let aiInsights = null;
@@ -58,7 +123,7 @@ export async function GET(
             proficiencyLevel: s.proficiencyLevel || 'intermediate'
           })),
           occupationMatches.slice(0, 5).map(o => ({
-            label: o.occupation.preferred_label,
+            label: o.occupation.preferredLabel,
             matchScore: o.matchScore
           })),
           {
@@ -73,9 +138,39 @@ export async function GET(
       // Continue without AI insights
     }
     
+    // Format top clusters for display
+    // clusterProbabilities is an object with 'items', 'entropy', 'topK' properties
+    const clusterItems = clusterProbabilities.items || clusterProbabilities.topK || [];
+    const topClusters = clusterItems
+      .map((cluster: any) => ({
+        id: cluster.id,
+        name: cluster.name,
+        description: cluster.description,
+        probability: Math.round((cluster.probability || 0) * 100)
+      }))
+      .sort((a: any, b: any) => b.probability - a.probability)
+      .slice(0, 3);
+    
     // Build result object
     const result = {
       sessionId: session.session_id,
+      
+      // Debug Info (for display at top of results page)
+      debugInfo: {
+        dob: session.date_of_birth || 'Not provided',
+        location: session.location || 'Not provided',
+        topClusters,
+        totalSkills: session.identified_skills.length,
+        highConfidenceSkills: session.identified_skills.filter(s => s.confidence >= 60).length
+      },
+      
+      // Cluster Analysis
+      clusterAnalysis: {
+        topClusters,
+        description: topClusters.length > 0 
+          ? `Based on your answers, you're most aligned with ${topClusters[0].name} (${topClusters[0].probability}% match).`
+          : 'Analyzing your profile...'
+      },
       
       // Skills Profile
       identifiedSkills: session.identified_skills,
@@ -83,12 +178,14 @@ export async function GET(
       
       // Occupation Matches (transform to match frontend interface)
       topOccupations: occupationMatches.slice(0, 10).map(match => ({
-        ...match,
         occupation: {
-          id: match.occupation.id,
-          preferredLabel: match.occupation.preferred_label,
-          conceptUri: match.occupation.origin_uri
-        }
+          id: match.occupation.preferredLabel.toLowerCase().replace(/\s+/g, '-'),
+          preferredLabel: match.occupation.preferredLabel,
+          description: match.occupation.description,
+          conceptUri: `esco:occupation:${match.occupation.preferredLabel.toLowerCase().replace(/\s+/g, '-')}`
+        },
+        matchScore: match.matchScore,
+        reasoning: match.reasoning
       })),
       
       // AI Insights (if available)
@@ -99,7 +196,9 @@ export async function GET(
         currentSituation: session.current_situation,
         interests: session.interest_categories,
         primaryGoal: session.primary_goal,
-        strengths: session.strengths_text
+        strengths: session.strengths_text,
+        dateOfBirth: session.date_of_birth,
+        location: session.location
       },
       
       // Quiz Stats

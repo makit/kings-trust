@@ -68,6 +68,17 @@ export interface AdaptiveQuestion {
   targetOccupations?: string[]; // Occupations this helps narrow
   expectedInformationGain?: number; // Calculated dynamically
   difficulty?: number; // 1-5, used to pace the quiz
+  
+  // AI scenario question metadata
+  metadata?: {
+    suggestedApproaches?: string[];
+    skillIndicators?: {
+      strong: string[];
+      moderate: string[];
+      developing: string[];
+    };
+    targetSkill?: string;
+  };
 }
 
 export interface QuestionOption {
@@ -121,7 +132,7 @@ export const USER_CLUSTERS: UserCluster[] = [
     collaboration: 'teamwork',
     pace: 'detail-patient',
     iscoGroups: ['5', '2', '3'], // Service, professionals, technicians
-    coreSkills: ['S1.0.1', 'S2.2.1', 'S9.2.2'] // Communication, empathy, service
+    coreSkills: ['key_7837', 'key_10081', 'key_7328', 'key_2045', 'key_9020'] // show empathy, listen actively, assist visitors, sell services, assist judge
   },
   {
     id: 'creative-maker',
@@ -133,7 +144,7 @@ export const USER_CLUSTERS: UserCluster[] = [
     collaboration: 'solo',
     pace: 'speed-action',
     iscoGroups: ['7', '3'], // Craft, technicians
-    coreSkills: ['S3.4.5', 'S3.1.1', 'S1.1.1'] // Creativity, manual dexterity
+    coreSkills: ['key_1389', 'key_2232', 'key_4101', 'key_11922', 'key_13953'] // create model, design floor, design props, build props, build trust
   },
   {
     id: 'tech-solver',
@@ -145,7 +156,7 @@ export const USER_CLUSTERS: UserCluster[] = [
     collaboration: 'mixed',
     pace: 'detail-patient',
     iscoGroups: ['2', '3'], // Professionals, technicians
-    coreSkills: ['S3.2.1', 'S3.2.2', 'S1.3.1'] // Computer use, digital, analysis
+    coreSkills: ['key_10726', 'key_2261', 'key_14533', 'key_3264', 'key_7843'] // solve problems, analyse loans, analyse issues, debug software, analyse images
   },
   {
     id: 'action-outdoor',
@@ -157,7 +168,7 @@ export const USER_CLUSTERS: UserCluster[] = [
     collaboration: 'teamwork',
     pace: 'speed-action',
     iscoGroups: ['6', '7', '9'], // Agriculture, craft, elementary
-    coreSkills: ['S3.4.3', 'S3.4.4', 'S9.1.1'] // Physical stamina, coordination
+    coreSkills: ['key_7493', 'key_3042', 'key_3453', 'key_10805', 'key_14780'] // coordinate care, coordinate events, coordinate shifts, coordinate patrols, coordinate security
   },
   {
     id: 'organizer-coordinator',
@@ -169,7 +180,7 @@ export const USER_CLUSTERS: UserCluster[] = [
     collaboration: 'teamwork',
     pace: 'detail-patient',
     iscoGroups: ['3', '4'], // Technicians, clerical
-    coreSkills: ['S4.1.1', 'S4.1.2', 'S1.0.1'] // Organization, time management
+    coreSkills: ['key_13611', 'key_10246', 'key_6010', 'key_10012', 'key_6327'] // plan, plan events, manage work, manage data, plan menus
   },
   {
     id: 'entrepreneur-persuader',
@@ -181,7 +192,7 @@ export const USER_CLUSTERS: UserCluster[] = [
     collaboration: 'mixed',
     pace: 'speed-action',
     iscoGroups: ['1', '5', '3'], // Managers, service, sales
-    coreSkills: ['S1.0.1', 'S1.0.2', 'S4.3.1'] // Communication, persuasion, initiative
+    coreSkills: ['key_2927', 'key_7738', 'key_2045', 'key_8199', 'key_3776'] // lead a team, lead others, sell services, sell art, sell tickets
   },
   {
     id: 'care-support',
@@ -193,7 +204,7 @@ export const USER_CLUSTERS: UserCluster[] = [
     collaboration: 'teamwork',
     pace: 'detail-patient',
     iscoGroups: ['2', '5', '3'], // Health professionals, care workers
-    coreSkills: ['S2.2.1', 'S2.2.2', 'S9.2.2'] // Empathy, patience, caring
+    coreSkills: ['key_7837', 'key_6655', 'key_7493', 'key_8568', 'key_4398'] // show empathy, support nurses, coordinate care, advise on career, advocate health
   },
   {
     id: 'analyst-researcher',
@@ -205,7 +216,7 @@ export const USER_CLUSTERS: UserCluster[] = [
     collaboration: 'solo',
     pace: 'detail-patient',
     iscoGroups: ['2', '3'], // Professionals, technicians
-    coreSkills: ['S1.3.1', 'S1.3.2', 'S3.1.1'] // Analysis, research, learning
+    coreSkills: ['key_5921', 'key_2261', 'key_10476', 'key_7843', 'key_14533'] // study topics, analyse loans, assess others, analyse images, analyse issues
   }
 ];
 

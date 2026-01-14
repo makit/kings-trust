@@ -11,7 +11,7 @@ import {
 
 // Initialize Bedrock client
 const bedrockClient = new BedrockRuntimeClient({
-  region: process.env.AWS_REGION || 'us-east-1',
+  region: process.env.AWS_REGION || 'us-west-2',
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
@@ -78,6 +78,8 @@ export async function generateAdaptiveQuestion(
 }> {
   const prompt = `You are a career assessment expert for The King's Trust, helping young people (16-25) discover their skills.
 
+You are using the ESCO (European Skills, Competences, Qualifications and Occupations) framework for skill assessment.
+
 Generate a realistic, youth-friendly scenario question to assess: "${targetSkill.label}"
 
 Description: ${targetSkill.description}
@@ -92,7 +94,8 @@ Requirements:
 2. Ask how they would handle it
 3. Make it engaging and not intimidating
 4. Include 3-4 example approaches they could take (optional guidance)
-5. The scenario should naturally require the skill: ${targetSkill.label}
+5. The scenario should naturally require the ESCO skill: ${targetSkill.label}
+6. Design the scenario to reveal ESCO-aligned skills in their response
 
 Return ONLY valid JSON (no markdown):
 {
@@ -174,14 +177,22 @@ Skill Indicators:
 - Developing: ${skillIndicators.developing.join(', ')}
 ` : ''}
 
+IMPORTANT: This assessment uses the ESCO (European Skills, Competences, Qualifications and Occupations) framework.
+
 Task: Analyze their response and identify demonstrated skills. Be encouraging and look for strengths!
+
+CRITICAL REQUIREMENTS:
+1. For "additionalSkills", ONLY use official ESCO skill names (e.g., "solve problems", "work in teams", "communicate", "show empathy", "think critically", "manage time", "demonstrate patience", "show initiative", "adapt to change")
+2. Do NOT invent generic skills like "Teamwork" or "Problem Solving" - use exact ESCO terminology
+3. Use lowercase, verb-based ESCO skill format (e.g., "coordinate events", "analyse data", "lead teams")
+4. Be specific with ESCO skill names - avoid broad categories
 
 Return ONLY valid JSON (no markdown):
 {
   "identifiedSkills": [
     {
       "skillId": "skill_123",
-      "skillLabel": "Problem Solving",
+      "skillLabel": "solve problems",
       "confidence": 85,
       "proficiencyLevel": "intermediate",
       "evidence": "Specific quote or behavior from their response",
@@ -190,9 +201,9 @@ Return ONLY valid JSON (no markdown):
   ],
   "additionalSkills": [
     {
-      "skillLabel": "Teamwork",
+      "skillLabel": "work in teams",
       "confidence": 70,
-      "reasoning": "They mentioned working with others"
+      "reasoning": "They mentioned collaborating with others"
     }
   ],
   "overallAssessment": "Positive 1-2 sentence summary of their approach"
@@ -290,6 +301,122 @@ Return ONLY valid JSON (no markdown):
   } catch (error) {
     console.error('Failed to parse Bedrock response:', response);
     throw new Error('Invalid response format from Bedrock');
+  }
+}
+
+/**
+ * Get ESCO occupation recommendations based on identified skills
+ * Uses LLM to suggest relevant careers with percentage matches
+ */
+export async function suggestOccupationsFromSkills(
+  identifiedSkills: Array<{
+    skillLabel: string;
+    confidence: number;
+  }>,
+  userProfile: {
+    currentSituation?: string;
+    primaryGoal?: string;
+    interests?: string[];
+    dateOfBirth?: string;
+    location?: string;
+  }
+): Promise<Array<{
+  occupation: {
+    preferredLabel: string;
+    description: string;
+  };
+  matchScore: number;
+  reasoning: string;
+}>> {
+  const topSkills = identifiedSkills
+    .filter(s => s.confidence >= 60)
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, 10);
+
+  const prompt = `You are a career counselor using the ESCO (European Skills, Competences, Qualifications and Occupations) framework.
+
+A young person (16-25) has completed a skills assessment. Based on their identified skills, suggest relevant ESCO occupations.
+
+User Profile:
+- Current situation: ${userProfile.currentSituation || 'Exploring career options'}
+- Primary goal: ${userProfile.primaryGoal || 'Find a suitable career path'}
+- Location: ${userProfile.location || 'UK'}
+- Interests: ${userProfile.interests?.join(', ') || 'Not specified'}
+
+Identified Skills (sorted by confidence):
+${topSkills.map(s => `- ${s.skillLabel} (${s.confidence}% confidence)`).join('\n')}
+
+Task: Suggest 8-10 ESCO occupations that match these skills. Use real ESCO occupation names (e.g., "shop assistant", "customer service representative", "retail manager", "care worker", "teaching assistant", etc.).
+
+IMPORTANT:
+1. Use realistic ESCO occupation titles that exist in the European skills framework
+2. Match percentages should reflect how well their skills align (60-95% range is realistic)
+3. Be specific - prefer concrete job titles over generic ones
+4. Consider entry-level and growth opportunities suitable for young people
+5. Provide brief reasoning for each match
+6. Sort by match percentage (highest first)
+
+Return ONLY valid JSON (no markdown, no code blocks):
+{
+  "occupations": [
+    {
+      "preferredLabel": "shop assistant",
+      "description": "Brief 1-sentence description of what this role involves",
+      "matchScore": 85,
+      "reasoning": "Your strong communication and customer service skills are key for this role"
+    }
+  ]
+}`;
+
+  const response = await invokeClaude(prompt, 2500, 0.6);
+  
+  try {
+    const content = response.content[0].text;
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      // Try to extract JSON from markdown code blocks
+      const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/) || 
+                       content.match(/(\{[\s\S]*\})/);
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[1]);
+      } else {
+        throw new Error('Could not extract JSON from response');
+      }
+    }
+    
+    // Transform to expected format
+    return parsed.occupations.map((occ: any) => ({
+      occupation: {
+        preferredLabel: occ.preferredLabel,
+        description: occ.description
+      },
+      matchScore: occ.matchScore,
+      reasoning: occ.reasoning
+    }));
+  } catch (error) {
+    console.error('Failed to parse occupation suggestions:', error);
+    console.error('Raw response:', response);
+    // Return fallback occupations
+    return [
+      {
+        occupation: {
+          preferredLabel: 'customer service representative',
+          description: 'Assist customers with inquiries and provide support'
+        },
+        matchScore: 70,
+        reasoning: 'Based on your communication and interpersonal skills'
+      },
+      {
+        occupation: {
+          preferredLabel: 'shop assistant',
+          description: 'Help customers in retail environments'
+        },
+        matchScore: 68,
+        reasoning: 'Your people skills and adaptability are valuable here'
+      }
+    ];
   }
 }
 

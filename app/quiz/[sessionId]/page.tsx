@@ -12,6 +12,7 @@ import MultipleChoice from '@/components/quiz/MultipleChoice';
 import MultiSelect from '@/components/quiz/MultiSelect';
 import FreeText from '@/components/quiz/FreeText';
 import ScaleQuestion from '@/components/quiz/ScaleQuestion';
+import ScenarioQuestion from '@/components/quiz/ScenarioQuestion';
 
 interface QuizQuestion {
   question_id: string;
@@ -34,6 +35,7 @@ export default function QuizSessionPage() {
   const [progress, setProgress] = useState({ current: 0, total: 20, percentage: 0 });
   const [startTime] = useState(Date.now());
   const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('Nice one! 🎉');
 
   // Load initial question
   useEffect(() => {
@@ -96,23 +98,34 @@ export default function QuizSessionPage() {
 
       const data = await res.json();
 
-      // Show success animation
-      setTimeout(() => {
-        setShowSuccess(false);
-        
-        // Update progress
-        setProgress(data.progress);
+      // Store success message if provided
+      if (data.successMessage) {
+        setSuccessMessage(data.successMessage);
+      }
 
+      // Show success animation briefly
+      setTimeout(() => {
         // Check if quiz is complete
         if (data.isComplete) {
+          setShowSuccess(false);
           router.push(`/quiz/${sessionId}/results`);
           return;
         }
 
         // Load next question
         if (data.nextQuestion) {
-          setQuestion(data.nextQuestion);
+          // IMPORTANT: Hide success FIRST, then update question
+          // This allows the ScenarioQuestion loading state to show
+          setShowSuccess(false);
+          
+          // Small delay to ensure state update completes
+          setTimeout(() => {
+            setQuestion(data.nextQuestion);
+            setSuccessMessage('Nice one! 🎉'); // Reset for next time
+            setProgress(data.progress);
+          }, 50);
         } else {
+          setShowSuccess(false);
           router.push(`/quiz/${sessionId}/results`);
         }
       }, 1000);
@@ -151,9 +164,9 @@ export default function QuizSessionPage() {
       {/* Success Animation Overlay */}
       {showSuccess && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm animate-bounce-in">
-          <div className="bg-white rounded-3xl p-8 shadow-2xl text-center transform scale-110">
+          <div className="bg-white rounded-3xl p-8 shadow-2xl text-center transform scale-110 max-w-md">
             <div className="text-6xl mb-2">🎉</div>
-            <p className="text-xl font-bold text-brand-red">Nice one!</p>
+            <p className="text-xl font-bold text-brand-red">{successMessage}</p>
           </div>
         </div>
       )}
@@ -165,10 +178,10 @@ export default function QuizSessionPage() {
             <div className="flex items-center gap-2">
               <Target size={18} className="text-brand-red" />
               <span className="text-sm font-bold text-[#323232]">
-                Question {progress.current + 1} of {progress.total}
+                Question {progress.current + 1}
               </span>
             </div>
-            <span className="text-sm font-semibold text-secondary-500">{progress.percentage}%</span>
+            {/* <span className="text-sm font-semibold text-secondary-500">{progress.percentage}%</span> */}
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
             <div
@@ -197,7 +210,7 @@ export default function QuizSessionPage() {
             {question.text}
           </h2>
           
-          {question.description && (
+          {question.description && question.type !== 'scenario' && (
             <p className="text-[#323232]/70 mb-6 text-base">{question.description}</p>
           )}
 
@@ -236,11 +249,11 @@ export default function QuizSessionPage() {
             )}
 
             {question.type === 'scenario' && (
-              <MultiSelect
-                options={question.options || []}
+              <ScenarioQuestion
+                questionId={question.question_id}
+                questionText={question.text}
+                scenarioContext={question.description}
                 onSubmit={submitAnswer}
-                disabled={submitting}
-                description="Choose all that apply"
               />
             )}
           </div>

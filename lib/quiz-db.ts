@@ -47,6 +47,10 @@ export interface QuizSession {
   bayesian_state?: string; // JSON of BayesianQuizState
   cluster_probabilities?: string; // JSON of cluster distribution
   questions_asked?: string[]; // Array of question IDs
+  
+  // User profile data
+  date_of_birth?: string;
+  location?: string;
 }
 
 export interface IdentifiedSkill {
@@ -54,7 +58,7 @@ export interface IdentifiedSkill {
   skillLabel: string;
   confidence: number;
   evidence: string[];
-  source: 'direct' | 'inferred' | 'validated';
+  source: 'direct' | 'inferred' | 'validated' | 'ai-analysis' | 'ai-inferred';
   proficiencyLevel?: 'beginner' | 'intermediate' | 'advanced' | 'expert';
 }
 

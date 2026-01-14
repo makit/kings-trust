@@ -11,19 +11,25 @@ import { getStage1Questions } from '@/lib/quiz-stage1-questions';
 
 export async function POST(request: NextRequest) {
   try {
+    // Parse request body for DOB and location
+    const body = await request.json();
+    const { dob, location } = body;
+    
     // Create new quiz session
     const session = await createQuizSession();
     
     // Initialize Bayesian state
     const bayesianState = initializeBayesianState(session.session_id);
     
-    // Update session with initial Bayesian state
+    // Update session with initial Bayesian state and user info
     await updateQuizSession(session.session_id, {
       quiz_stage: 1,
       stage1_complete: false,
       bayesian_state: serializeBayesianState(bayesianState),
       cluster_probabilities: JSON.stringify(bayesianState.clusterDistribution),
-      questions_asked: []
+      questions_asked: [],
+      date_of_birth: dob,
+      location: location
     });
     
     // Get first Stage 1 question
