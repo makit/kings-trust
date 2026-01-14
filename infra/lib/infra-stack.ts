@@ -5,6 +5,8 @@ import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as elbv2 from 'aws-cdk-lib/aws-elasticloadbalancingv2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as path from 'path';
 
 export class InfraStack extends cdk.Stack {
@@ -173,10 +175,29 @@ export class InfraStack extends cdk.Stack {
       scaleOutCooldown: cdk.Duration.seconds(60),
     });
 
-    // Output the load balancer URL
+    // Create CloudFront distribution for HTTPS
+    const distribution = new cloudfront.Distribution(this, 'NextJsDistribution', {
+      defaultBehavior: {
+        origin: new origins.LoadBalancerV2Origin(alb, {
+          protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+        }),
+        viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
+        cachePolicy: cloudfront.CachePolicy.CACHING_DISABLED, // Disable caching for dynamic content
+        originRequestPolicy: cloudfront.OriginRequestPolicy.ALL_VIEWER,
+      },
+      comment: 'Kings Trust Next.js Application',
+    });
+
+    // Output URLs
     new cdk.CfnOutput(this, 'LoadBalancerURL', {
       value: `http://${alb.loadBalancerDnsName}`,
-      description: 'URL of the Application Load Balancer',
+      description: 'URL of the Application Load Balancer (HTTP only)',
+    });
+
+    new cdk.CfnOutput(this, 'CloudFrontURL', {
+      value: `https://${distribution.distributionDomainName}`,
+      description: 'CloudFront URL with HTTPS',
     });
   }
 }
