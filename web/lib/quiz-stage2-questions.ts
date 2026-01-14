@@ -183,8 +183,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           },
           skillLikelihoods: {
             'S3.4.5': 0.8, // Creativity
-            'S1.0.2': 0.7, // Persuasion
-            'P3.1.1': 0.7  // Practical skills
+            'S1.0.2': 0.7 // Persuasion
           }
         },
         {
@@ -593,7 +592,6 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           },
           skillLikelihoods: {
             'S3.4.5': 0.8, // Creativity
-            'P3.1.1': 0.8, // Practical skills
             'S4.3.1': 0.8  // Initiative
           }
         },
@@ -628,7 +626,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
     {
       question_id: 'stage2_physical_01',
       type: 'scale',
-      text: 'How comfortable are you with hands-on, physical tasks?',
+      text: 'How comfortable are you with hands-on, physical tasks (such as using tools)?',
       description: 'Rate from 1 (prefer not to) to 5 (love physical work)',
       options: [
         { value: '1', label: '1 - Prefer not to', skillLikelihoods: {} },
@@ -720,7 +718,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           skillLikelihoods: {}
         }
       ],
-      targetSkills: ['S3.4.3', 'S3.4.4', 'S3.4.5'], // TODO
+      targetSkills: ['S3.4.3', 'S3.4.5'],
       targetClusters: ['action-outdoor', 'creative-maker'],
       difficulty: 1
     },

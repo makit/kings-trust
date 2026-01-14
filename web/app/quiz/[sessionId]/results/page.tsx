@@ -214,20 +214,6 @@ export default function QuizResultsPage() {
             {result.aiInsights.executiveSummary}
           </p>
 
-          {result.aiInsights?.keyStrengths?.length || 0 > 0 && (
-            <div className="mb-6">
-              <h3 className="font-semibold text-lg mb-3">Your Key Strengths</h3>
-              <ul className="space-y-2">
-                {result.aiInsights.keyStrengths.map((strength, i) => (
-                  <li key={i} className="flex items-start gap-2">
-                    <span className="text-green-600 font-bold">✓</span>
-                    <span className="text-gray-700">{strength}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           {result.aiInsights.growthOpportunities && result.aiInsights.growthOpportunities.length > 0 && (
             <div className="mb-6">
               <h3 className="font-semibold text-lg mb-3">Growth Opportunities</h3>
@@ -485,14 +471,7 @@ export default function QuizResultsPage() {
       )}
 
       {/* Actions */}
-      <div className="text-center space-y-4">
-        <Link
-          href="/skills"
-          className="inline-block bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
-        >
-          Explore All Skills
-        </Link>
-        
+      <div className="text-center space-y-4">        
         <div className="text-sm text-gray-500">
           <Link href="/quiz" className="hover:text-primary hover:underline">
             Take the quiz again
