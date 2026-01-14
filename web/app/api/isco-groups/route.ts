@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json({
       groups,
-      total: groups.length,
+      total: 0,
     });
   } catch (error) {
     console.error('Error fetching ISCO groups:', error);

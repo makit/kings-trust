@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       matches,
-      totalMatches: matches.length,
+      totalMatches: (await matches).length,
       skillCount: skillIds.length,
     });
   } catch (error) {

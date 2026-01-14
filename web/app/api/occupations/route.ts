@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       filters.search = searchParams.get('search');
     }
     
-    const { occupations, total } = getAllOccupations(limit, offset, filters);
+    const { occupations, total } = await getAllOccupations(limit, offset, filters);
     
     return NextResponse.json({
       occupations,

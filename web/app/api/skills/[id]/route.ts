@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const skill = getSkillById(params.id);
+    const skill = await getSkillById(params.id);
     
     if (!skill) {
       return NextResponse.json(
@@ -15,7 +15,7 @@ export async function GET(
       );
     }
     
-    const occupations = getOccupationsForSkill(params.id);
+    const occupations = await getOccupationsForSkill(params.id);
     
     return NextResponse.json({
       ...skill,

@@ -19,7 +19,7 @@ export async function GET(
     
     return NextResponse.json({
       ...occupation,
-      alt_labels: parseAltLabels(occupation.alt_labels),
+      //alt_labels: parseAltLabels(occupation.?alt_labels),
       skills,
     });
   } catch (error) {
