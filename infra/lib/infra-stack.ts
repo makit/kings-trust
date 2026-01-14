@@ -88,6 +88,8 @@ export class InfraStack extends cdk.Stack {
       vpc,
       internetFacing: true,
       loadBalancerName: 'kings-trust-alb',
+      // Increase idle timeout to support long-running requests (default is 60s)
+      idleTimeout: cdk.Duration.seconds(120),
     });
 
     // Create target group
@@ -105,6 +107,8 @@ export class InfraStack extends cdk.Stack {
         unhealthyThresholdCount: 3,
       },
       deregistrationDelay: cdk.Duration.seconds(30),
+      // Increase target timeout to allow for longer-running requests (LLM calls)
+      slowStart: cdk.Duration.seconds(120),
     });
 
     // Add listener to ALB
@@ -168,6 +172,9 @@ export class InfraStack extends cdk.Stack {
       defaultBehavior: {
         origin: new origins.LoadBalancerV2Origin(alb, {
           protocolPolicy: cloudfront.OriginProtocolPolicy.HTTP_ONLY,
+          // Increase timeouts for long-running requests (LLM API calls, etc.)
+          readTimeout: cdk.Duration.seconds(120), // Timeout for reading from origin
+          keepaliveTimeout: cdk.Duration.seconds(120), // Keep-alive timeout
         }),
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         allowedMethods: cloudfront.AllowedMethods.ALLOW_ALL,
