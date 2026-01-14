@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getOccupationById, getSkillsForOccupation, parseAltLabels } from '@/lib/database';
+import { getOccupationById, getSkillsForOccupation } from '@/lib/database';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 
 export default async function OccupationDetailPage({ params }: { params: { id: string } }) {

@@ -88,7 +88,7 @@ export default function HomePage() {
       <div className="bg-gradient-to-br from-brand-red to-brand-red/90 text-white mt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Ready to Discover What You're Great At? 🚀
+            Ready to Discover What You&apos;re Great At? 🚀
           </h2>
           <p className="text-xl mb-8 opacity-90">
             Join thousands of young people finding their path with King's Trust

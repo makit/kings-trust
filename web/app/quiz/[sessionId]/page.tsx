@@ -5,9 +5,11 @@
 
 'use client';
 
+const TOTAL_QUESTIONS = 10;
+
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Sparkles, Trophy, Target } from 'lucide-react';
+import { Sparkles, Target } from 'lucide-react';
 import MultipleChoice from '@/components/quiz/MultipleChoice';
 import MultiSelect from '@/components/quiz/MultiSelect';
 import FreeText from '@/components/quiz/FreeText';
@@ -32,7 +34,7 @@ export default function QuizSessionPage() {
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [progress, setProgress] = useState({ current: 0, total: 20, percentage: 0 });
+  const [progress, setProgress] = useState({ current: 0, total: TOTAL_QUESTIONS, percentage: 0 });
   const [startTime] = useState(Date.now());
   const [showSuccess, setShowSuccess] = useState(false);
   const [successMessage, setSuccessMessage] = useState('Nice one! 🎉');
@@ -72,7 +74,7 @@ export default function QuizSessionPage() {
     loadFirstQuestion();
   }, [sessionId, router]);
 
-  async function submitAnswer(response: any) {
+  async function submitAnswer(response: unknown) {
     if (!question) return;
 
     setSubmitting(true);
@@ -122,7 +124,11 @@ export default function QuizSessionPage() {
           setTimeout(() => {
             setQuestion(data.nextQuestion);
             setSuccessMessage('Nice one! 🎉'); // Reset for next time
-            setProgress(data.progress);
+            setProgress({
+              current: data.progress.current,
+              total: TOTAL_QUESTIONS,
+              percentage: Math.round((data.progress.current / TOTAL_QUESTIONS) * 100)
+            });
           }, 50);
         } else {
           setShowSuccess(false);
@@ -163,10 +169,12 @@ export default function QuizSessionPage() {
     <div className="min-h-screen pb-8">
       {/* Success Animation Overlay */}
       {showSuccess && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm animate-bounce-in">
-          <div className="bg-white rounded-3xl p-8 shadow-2xl text-center transform scale-110 max-w-md">
-            <div className="text-6xl mb-2">🎉</div>
-            <p className="text-xl font-bold text-brand-red">{successMessage}</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center animate-bounce-in">
+            <div className="bg-white rounded-3xl p-8 shadow-2xl text-center transform scale-110 max-w-md">
+              <div className="text-6xl mb-2">🎉</div>
+              <p className="text-xl font-bold text-brand-red">{successMessage}</p>
+            </div>
           </div>
         </div>
       )}
@@ -262,8 +270,8 @@ export default function QuizSessionPage() {
         {/* Motivation Message */}
         <div className="text-center">
           <p className="text-sm text-[#323232]/60">
-            {progress.percentage < 30 && "You're doing great! Keep going! 💪"}
-            {progress.percentage >= 30 && progress.percentage < 60 && "Awesome progress! You're almost halfway! 🎯"}
+            {progress.percentage < 30 && "You&apos;re doing great! Keep going! 💪"}
+            {progress.percentage >= 30 && progress.percentage < 60 && "Awesome progress! You&apos;re almost halfway! 🎯"}
             {progress.percentage >= 60 && progress.percentage < 90 && "Nearly there! Keep it up! 🚀"}
             {progress.percentage >= 90 && "Final stretch! You've got this! 🏆"}
           </p>

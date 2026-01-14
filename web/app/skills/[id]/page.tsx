@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getSkillById, getOccupationsForSkill, parseAltLabels } from '@/lib/database';
+import { getSkillById, getOccupationsForSkill } from '@/lib/database';
 import { ArrowLeft, Zap } from 'lucide-react';
 
 export default async function SkillDetailPage({ params }: { params: { id: string } }) {
