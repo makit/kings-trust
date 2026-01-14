@@ -1,7 +1,7 @@
 /**
  * Stage 1: Broad Orientation Questions
  * 
- * 6-10 questions designed to quickly place users into clusters
+ * 4-5 questions designed to quickly place users into clusters (reduced from 6-8)
  * Each question helps narrow down:
  * - preferences: people vs things vs information
  * - structure vs variety
@@ -292,203 +292,6 @@ export function getStage1Questions(): AdaptiveQuestion[] {
       targetClusters: ['entrepreneur-persuader', 'action-outdoor', 'analyst-researcher', 'care-support']
     },
     
-    {
-      question_id: 'stage1_q6_satisfaction',
-      type: 'multiple-choice',
-      text: 'What gives you the most satisfaction?',
-      description: 'Think about what makes you feel accomplished',
-      options: [
-        {
-          value: 'helping-impact',
-          label: 'Helping people and making a positive impact on their lives',
-          clusterLikelihoods: {
-            'care-support': 0.95,
-            'helper-people': 0.9,
-            'entrepreneur-persuader': 0.5,
-            'organizer-coordinator': 0.4,
-            'analyst-researcher': 0.2,
-            'tech-solver': 0.3,
-            'creative-maker': 0.3,
-            'action-outdoor': 0.4
-          }
-        },
-        {
-          value: 'creating-something',
-          label: 'Creating or building something tangible',
-          clusterLikelihoods: {
-            'creative-maker': 0.95,
-            'tech-solver': 0.6,
-            'action-outdoor': 0.6,
-            'entrepreneur-persuader': 0.5,
-            'analyst-researcher': 0.3,
-            'organizer-coordinator': 0.3,
-            'helper-people': 0.3,
-            'care-support': 0.2
-          }
-        },
-        {
-          value: 'solving-challenges',
-          label: 'Solving complex challenges or figuring things out',
-          clusterLikelihoods: {
-            'tech-solver': 0.95,
-            'analyst-researcher': 0.9,
-            'entrepreneur-persuader': 0.6,
-            'organizer-coordinator': 0.6,
-            'creative-maker': 0.5,
-            'action-outdoor': 0.4,
-            'helper-people': 0.4,
-            'care-support': 0.3
-          }
-        },
-        {
-          value: 'achieving-goals',
-          label: 'Achieving goals and seeing results',
-          clusterLikelihoods: {
-            'entrepreneur-persuader': 0.9,
-            'organizer-coordinator': 0.85,
-            'action-outdoor': 0.7,
-            'tech-solver': 0.6,
-            'creative-maker': 0.6,
-            'helper-people': 0.5,
-            'analyst-researcher': 0.5,
-            'care-support': 0.5
-          }
-        }
-      ],
-      targetClusters: ['care-support', 'creative-maker', 'tech-solver', 'entrepreneur-persuader']
-    },
-    
-    {
-      question_id: 'stage1_q7_learning',
-      type: 'multiple-choice',
-      text: 'How do you prefer to learn new things?',
-      description: 'Think about when you learn best',
-      options: [
-        {
-          value: 'hands-on-doing',
-          label: 'Hands-on - just let me try it and figure it out',
-          clusterLikelihoods: {
-            'creative-maker': 0.9,
-            'action-outdoor': 0.85,
-            'entrepreneur-persuader': 0.7,
-            'tech-solver': 0.6,
-            'helper-people': 0.5,
-            'organizer-coordinator': 0.4,
-            'care-support': 0.5,
-            'analyst-researcher': 0.3
-          }
-        },
-        {
-          value: 'watching-copying',
-          label: 'Watching others and copying what works',
-          clusterLikelihoods: {
-            'helper-people': 0.8,
-            'care-support': 0.8,
-            'action-outdoor': 0.7,
-            'organizer-coordinator': 0.6,
-            'creative-maker': 0.5,
-            'entrepreneur-persuader': 0.5,
-            'tech-solver': 0.4,
-            'analyst-researcher': 0.3
-          }
-        },
-        {
-          value: 'reading-researching',
-          label: 'Reading instructions or researching first',
-          clusterLikelihoods: {
-            'analyst-researcher': 0.95,
-            'tech-solver': 0.85,
-            'organizer-coordinator': 0.75,
-            'care-support': 0.5,
-            'creative-maker': 0.3,
-            'helper-people': 0.4,
-            'entrepreneur-persuader': 0.3,
-            'action-outdoor': 0.2
-          }
-        },
-        {
-          value: 'talking-discussing',
-          label: 'Talking it through and asking questions',
-          clusterLikelihoods: {
-            'helper-people': 0.85,
-            'entrepreneur-persuader': 0.8,
-            'care-support': 0.7,
-            'organizer-coordinator': 0.6,
-            'tech-solver': 0.5,
-            'creative-maker': 0.5,
-            'analyst-researcher': 0.4,
-            'action-outdoor': 0.5
-          }
-        }
-      ],
-      targetClusters: ['creative-maker', 'action-outdoor', 'analyst-researcher', 'helper-people']
-    },
-    
-    {
-      question_id: 'stage1_q8_stress',
-      type: 'multiple-choice',
-      text: 'When things get stressful or challenging, what helps you most?',
-      description: 'Understanding your coping style helps us match you better',
-      options: [
-        {
-          value: 'talk-it-out',
-          label: 'Talking it out with others',
-          clusterLikelihoods: {
-            'helper-people': 0.85,
-            'entrepreneur-persuader': 0.8,
-            'care-support': 0.75,
-            'organizer-coordinator': 0.5,
-            'creative-maker': 0.4,
-            'action-outdoor': 0.5,
-            'tech-solver': 0.4,
-            'analyst-researcher': 0.3
-          }
-        },
-        {
-          value: 'take-action',
-          label: 'Taking action and staying busy',
-          clusterLikelihoods: {
-            'action-outdoor': 0.9,
-            'entrepreneur-persuader': 0.8,
-            'creative-maker': 0.7,
-            'organizer-coordinator': 0.6,
-            'helper-people': 0.5,
-            'tech-solver': 0.5,
-            'care-support': 0.4,
-            'analyst-researcher': 0.3
-          }
-        },
-        {
-          value: 'step-back-think',
-          label: 'Stepping back to think and analyze',
-          clusterLikelihoods: {
-            'analyst-researcher': 0.9,
-            'tech-solver': 0.85,
-            'organizer-coordinator': 0.7,
-            'creative-maker': 0.5,
-            'care-support': 0.5,
-            'helper-people': 0.4,
-            'entrepreneur-persuader': 0.3,
-            'action-outdoor': 0.3
-          }
-        },
-        {
-          value: 'break-and-reset',
-          label: 'Taking a break and coming back fresh',
-          clusterLikelihoods: {
-            'creative-maker': 0.75,
-            'care-support': 0.7,
-            'analyst-researcher': 0.65,
-            'helper-people': 0.6,
-            'tech-solver': 0.6,
-            'organizer-coordinator': 0.6,
-            'entrepreneur-persuader': 0.5,
-            'action-outdoor': 0.6
-          }
-        }
-      ],
-      targetClusters: ['helper-people', 'action-outdoor', 'analyst-researcher']
-    }
   ];
 }
 
@@ -497,8 +300,8 @@ export function getStage1Questions(): AdaptiveQuestion[] {
  * Ensures we have enough information to proceed to Stage 2
  */
 export function isStage1Complete(responsesCount: number): boolean {
-  // Require at least 6 questions answered
-  return responsesCount >= 6;
+  // Require at least 4 questions answered (reduced from 6)
+  return responsesCount >= 4;
 }
 
 /**
@@ -510,7 +313,7 @@ export function getStage1Progress(responsesCount: number): {
   percentage: number;
   canProceed: boolean;
 } {
-  const total = 8; // Total stage 1 questions
+  const total = 5; // Total stage 1 questions (reduced from 8)
   return {
     current: responsesCount,
     total,

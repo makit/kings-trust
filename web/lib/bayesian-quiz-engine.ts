@@ -2,7 +2,7 @@
  * Bayesian Quiz Engine
  * 
  * Two-stage adaptive quiz system:
- * Stage 1: Broad orientation (6-10 questions) - quickly cluster users
+ * Stage 1: Broad orientation (4-5 questions) - quickly cluster users
  * Stage 2: Adaptive skill confirmation (8-15 questions) - maximize information gain
  * 
  * The system maintains probability distributions over:

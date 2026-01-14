@@ -80,9 +80,9 @@ Response:
 - No adaptation based on answers
 
 ### After (Bayesian Adaptive)
-- **Stage 1**: 6-10 orientation questions → places user in clusters
+- **Stage 1**: 4-5 orientation questions → places user in clusters (reduced)
 - **Stage 2**: 8-15 adaptive questions → selected for maximum information gain
-- **Total**: 14-23 questions (typically 15-18)
+- **Total**: 12-20 questions (typically 13-18)
 - Questions adapt to user's cluster profile
 
 ## Key Files Created

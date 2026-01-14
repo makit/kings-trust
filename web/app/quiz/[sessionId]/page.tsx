@@ -5,7 +5,7 @@
 
 'use client';
 
-const TOTAL_QUESTIONS = 10;
+const TOTAL_QUESTIONS = 15;
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';

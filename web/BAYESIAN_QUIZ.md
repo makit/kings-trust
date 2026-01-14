@@ -6,7 +6,7 @@ The quiz has been upgraded to a **two-stage Bayesian adaptive system** that prov
 
 ## How It Works
 
-### Stage 1: Broad Orientation (6-10 questions)
+### Stage 1: Broad Orientation (4-5 questions)
 
 Quick questions that place users into broad clusters based on:
 - **Preferences**: People vs Things vs Information
@@ -55,7 +55,7 @@ The system:
 - Real-time confidence feedback
 
 ### 3. **Smart Question Bank**
-- 8 carefully calibrated Stage 1 questions with cluster likelihoods
+- 5 carefully calibrated Stage 1 questions with cluster likelihoods
 - 25+ Stage 2 questions covering different skill domains
 - Questions tagged with:
   - Target clusters they help distinguish
@@ -109,7 +109,7 @@ Returns:
   "quizInfo": {
     "stage": 1,
     "stageDescription": "Getting to know you",
-    "estimatedQuestions": "14-23 questions",
+    "estimatedQuestions": "12-20 questions",
     "estimatedTime": "5-8 minutes"
   }
 }
