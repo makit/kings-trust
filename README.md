@@ -88,7 +88,7 @@ cdk deploy
 ## Architecture
 
 - **Frontend**: Next.js 14 with TypeScript and Tailwind CSS
-- **Database**: SQLite (development) with DynamoDB support (production)
+- **Database**: SQLite (development) with Aurora (production)
 - **AI**: AWS Bedrock (Claude Sonnet 3.5) for adaptive questioning and occupation matching
 - **Infrastructure**: AWS CDK deploying to Fargate with Application Load Balancer
 - **Auto-scaling**: 2-10 tasks based on CPU/Memory utilization

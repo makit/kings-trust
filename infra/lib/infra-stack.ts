@@ -48,19 +48,6 @@ export class InfraStack extends cdk.Stack {
       resources: ['*'],
     }));
 
-    // Grant DynamoDB permissions (for quiz functionality)
-    taskRole.addToPolicy(new iam.PolicyStatement({
-      effect: iam.Effect.ALLOW,
-      actions: [
-        'dynamodb:PutItem',
-        'dynamodb:GetItem',
-        'dynamodb:UpdateItem',
-        'dynamodb:Query',
-        'dynamodb:Scan',
-      ],
-      resources: ['*'],
-    }));
-
     // Create Fargate Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'NextJsTaskDef', {
       memoryLimitMiB: 2048,
