@@ -258,6 +258,12 @@ export async function generatePersonalizedInsights(
   growthOpportunities: string[];
   careerRecommendations: string;
   learningPath: string[];
+  escoOccupations: Array<{
+    preferredLabel: string;
+    description: string;
+    matchScore: number;
+    reasoning: string;
+  }>;
   recommendedEvents: Array<{
     title: string;
     category: string;

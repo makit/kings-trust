@@ -66,6 +66,12 @@ export interface AIInsights {
   growthOpportunities: string[];
   careerRecommendations: string;
   learningPath: string[];
+  escoOccupations: Array<{
+    preferredLabel: string;
+    description: string;
+    matchScore: number;
+    reasoning: string;
+  }>;
   recommendedEvents: Array<{
     title: string;
     category: string;
@@ -199,28 +205,46 @@ export async function generateQuizResults(
   const highConfidenceSkills = session.identified_skills
     .filter(s => s.confidence >= minConfidence);
   
-  // 4. Get occupation matches
-  const occupationMatches = await getOccupationMatches(
-    session.identified_skills,
-    {
-      currentSituation: session.current_situation,
-      primaryGoal: session.primary_goal,
-      interests: session.interest_categories,
-      dateOfBirth: session.date_of_birth,
-      location: session.location
-    }
-  );
-  
-  // 5. Generate AI insights (if available)
+  // 4. Generate AI insights (if available) - this now includes occupations
   const aiInsights = await generateAIInsights(
     session.identified_skills,
-    occupationMatches.slice(0, 5),
     {
       currentSituation: session.current_situation || 'Not specified',
       primaryGoal: session.primary_goal || 'Explore career options',
       interests: session.interest_categories || []
     }
   );
+  
+  // 5. Use occupations from AI insights, or fall back to separate call if AI failed
+  let occupationMatches: Array<{
+    occupation: { preferredLabel: string; description?: string };
+    matchScore: number;
+    reasoning?: string;
+  }>;
+  
+  if (aiInsights?.escoOccupations && aiInsights.escoOccupations.length > 0) {
+    console.log('[Results] Using occupations from agent:', aiInsights.escoOccupations.length);
+    occupationMatches = aiInsights.escoOccupations.map(occ => ({
+      occupation: {
+        preferredLabel: occ.preferredLabel,
+        description: occ.description
+      },
+      matchScore: occ.matchScore,
+      reasoning: occ.reasoning
+    }));
+  } else {
+    console.log('[Results] Agent did not return occupations, fetching separately...');
+    occupationMatches = await getOccupationMatches(
+      session.identified_skills,
+      {
+        currentSituation: session.current_situation,
+        primaryGoal: session.primary_goal,
+        interests: session.interest_categories,
+        dateOfBirth: session.date_of_birth,
+        location: session.location
+      }
+    );
+  }
   
   // 6. Format cluster analysis
   const topClusters = formatClusterAnalysis(clusterProbabilities);
@@ -332,20 +356,15 @@ async function getOccupationMatches(
 /**
  * Generate AI-powered personalized insights
  * 
- * Creates executive summary, strengths analysis, and recommendations.
+ * Creates executive summary, strengths analysis, recommendations, and occupation matches.
  * Returns null if AWS Bedrock is not configured or fails.
  * 
  * @param skills - Identified skills with confidence scores
- * @param topOccupations - Top matching occupations
  * @param userContext - User profile for personalization
- * @returns AI insights or null if unavailable
+ * @returns AI insights (including occupations) or null if unavailable
  */
 async function generateAIInsights(
   skills: IdentifiedSkill[],
-  topOccupations: Array<{
-    occupation: { preferredLabel: string };
-    matchScore: number;
-  }>,
   userContext: {
     currentSituation: string;
     primaryGoal: string;
@@ -366,10 +385,7 @@ async function generateAIInsights(
         confidence: s.confidence,
         proficiencyLevel: s.proficiencyLevel || 'intermediate'
       })),
-      topOccupations.map(o => ({
-        label: o.occupation.preferredLabel,
-        matchScore: o.matchScore
-      })),
+      [], // No longer need to pass occupations - agent generates them
       userContext
     );
   } catch (error) {
