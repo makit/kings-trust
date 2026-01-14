@@ -333,6 +333,9 @@ export async function generatePersonalizedInsights(
 
     console.info('Agent response:', fullResponse);
 
+    // Remove markdown bold formatting (** around text)
+    fullResponse = fullResponse.replace(/\*\*(.*?)\*\*/g, '$1');
+
     // Parse the agent's response
     try {
       return JSON.parse(fullResponse);
