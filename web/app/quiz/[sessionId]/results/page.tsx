@@ -32,6 +32,25 @@ interface QuizResult {
     growthOpportunities: string[];
     careerRecommendations: string;
     learningPath: string[];
+    recommendedEvents?: Array<{
+      title: string;
+      category: string;
+      careerLevel: string;
+      city: string;
+      venue: string;
+      date: string;
+      format: string;
+      skills: string[];
+      relevanceReason: string;
+    }>;
+    recommendedKingsTrustCourses?: Array<{
+      courseName: string;
+      programmeType: string;
+      targetAudience: string;
+      skillsSupported: string[];
+      relevanceReason: string;
+      courseLink: string;
+    }>;
     encouragement: string;
   };
   userProfile: {
@@ -209,11 +228,139 @@ export default function QuizResultsPage() {
             </div>
           )}
 
+          {result.aiInsights.growthOpportunities && result.aiInsights.growthOpportunities.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold text-lg mb-3">Growth Opportunities</h3>
+              <ul className="space-y-2">
+                {result.aiInsights.growthOpportunities.map((opportunity, i) => (
+                  <li key={i} className="flex items-start gap-2">
+                    <span className="text-blue-600 font-bold">→</span>
+                    <span className="text-gray-700">{opportunity}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {result.aiInsights.careerRecommendations && (
+            <div className="mb-6">
+              <h3 className="font-semibold text-lg mb-3">Career Recommendations</h3>
+              <p className="text-gray-700 leading-relaxed">{result.aiInsights.careerRecommendations}</p>
+            </div>
+          )}
+
+          {result.aiInsights.learningPath && result.aiInsights.learningPath.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-semibold text-lg mb-3">Your Learning Path</h3>
+              <ol className="space-y-2">
+                {result.aiInsights.learningPath.map((step, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm font-bold">
+                      {i + 1}
+                    </span>
+                    <span className="text-gray-700 pt-0.5">{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
           {result.aiInsights.encouragement && (
             <div className="bg-white/80 rounded-lg p-4 mt-6">
               <p className="text-gray-800 italic">"{result.aiInsights.encouragement}"</p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Recommended Events */}
+      {result.aiInsights?.recommendedEvents && result.aiInsights.recommendedEvents.length > 0 && (
+        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <span className="text-2xl">📅</span>
+            Recommended Events for You
+          </h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            {result.aiInsights.recommendedEvents.map((event, i) => (
+              <div
+                key={i}
+                className="border-2 border-gray-200 rounded-lg p-5 hover:border-brand-red transition-colors"
+              >
+                <h3 className="font-semibold text-lg text-gray-900 mb-2">{event.title}</h3>
+                <div className="space-y-2 text-sm text-gray-600 mb-3">
+                  <p><strong>Category:</strong> {event.category}</p>
+                  <p><strong>Level:</strong> {event.careerLevel}</p>
+                  <p><strong>Location:</strong> {event.city} - {event.venue}</p>
+                  <p><strong>Date:</strong> {event.date}</p>
+                  <p><strong>Format:</strong> {event.format}</p>
+                  {event.skills.length > 0 && (
+                    <div>
+                      <strong>Skills:</strong>
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {event.skills.map((skill, idx) => (
+                          <span key={idx} className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded text-xs">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm text-brand-red italic">💡 {event.relevanceReason}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Recommended Courses */}
+      {result.aiInsights?.recommendedKingsTrustCourses && result.aiInsights.recommendedKingsTrustCourses.length > 0 && (
+        <div className="bg-gradient-to-br from-brand-red/5 to-secondary-500/5 rounded-lg shadow-md p-8 mb-8 border-2 border-brand-red/20">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+            <span className="text-2xl">🎓</span>
+            King's Trust Courses for You
+          </h2>
+          <div className="space-y-4">
+            {result.aiInsights.recommendedKingsTrustCourses.map((course, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-lg p-5 border-2 border-gray-200 hover:border-brand-red transition-colors"
+              >
+                <h3 className="font-semibold text-xl text-gray-900 mb-2">{course.courseName}</h3>
+                <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-600 mb-3">
+                  <div>
+                    <p><strong>Programme Type:</strong> {course.programmeType}</p>
+                    <p><strong>Target Audience:</strong> {course.targetAudience}</p>
+                  </div>
+                  <div>
+                    {course.skillsSupported.length > 0 && (
+                      <div>
+                        <strong>Skills Supported:</strong>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {course.skillsSupported.map((skill, idx) => (
+                            <span key={idx} className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">
+                              {skill}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <p className="text-sm text-brand-red mb-3 italic">💡 {course.relevanceReason}</p>
+                {course.courseLink && (
+                  <a
+                    href={course.courseLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block px-4 py-2 bg-brand-red text-white rounded-lg hover:bg-brand-red/90 transition-colors text-sm font-medium"
+                  >
+                    Learn More →
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

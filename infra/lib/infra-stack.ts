@@ -44,6 +44,7 @@ export class InfraStack extends cdk.Stack {
       actions: [
         'bedrock:InvokeModel',
         'bedrock:InvokeModelWithResponseStream',
+        'bedrock:InvokeAgent',
       ],
       resources: ['*'],
     }));

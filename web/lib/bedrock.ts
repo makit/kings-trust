@@ -8,10 +8,18 @@ import {
   InvokeModelCommand,
   InvokeModelCommandInput 
 } from '@aws-sdk/client-bedrock-runtime';
+import {
+  BedrockAgentRuntimeClient,
+  InvokeAgentCommand
+} from '@aws-sdk/client-bedrock-agent-runtime';
 
 // Initialize Bedrock client
 // In ECS, credentials are automatically provided by the task role
 const bedrockClient = new BedrockRuntimeClient({
+  region: process.env.AWS_REGION || 'us-west-2',
+});
+
+const bedrockAgentClient = new BedrockAgentRuntimeClient({
   region: process.env.AWS_REGION || 'us-west-2',
 });
 
@@ -227,6 +235,7 @@ Return ONLY valid JSON (no markdown):
 
 /**
  * Generate personalized career insights based on quiz results
+ * Uses AWS Bedrock Agent for career counseling
  */
 export async function generatePersonalizedInsights(
   identifiedSkills: Array<{
@@ -249,54 +258,92 @@ export async function generatePersonalizedInsights(
   growthOpportunities: string[];
   careerRecommendations: string;
   learningPath: string[];
+  recommendedEvents: Array<{
+    title: string;
+    category: string;
+    careerLevel: string;
+    city: string;
+    venue: string;
+    date: string;
+    format: string;
+    skills: string[];
+    relevanceReason: string;
+  }>;
+  recommendedKingsTrustCourses: Array<{
+    courseName: string;
+    programmeType: string;
+    targetAudience: string;
+    skillsSupported: string[];
+    relevanceReason: string;
+    courseLink: string;
+  }>;
   encouragement: string;
 }> {
-  const prompt = `You are a career counselor at The King's Trust, providing personalized guidance to a young person who completed a skills assessment.
-
-User Profile:
-- Current situation: ${userProfile.currentSituation}
-- Goal: ${userProfile.primaryGoal}
-- Interests: ${userProfile.interests.join(', ')}
-
-Identified Skills (top skills):
-${identifiedSkills.slice(0, 8).map(s => 
-  `- ${s.skillLabel} (${s.confidence}% confidence, ${s.proficiencyLevel} level)`
-).join('\n')}
-
-Top Career Matches:
-${topOccupations.slice(0, 5).map(o => 
-  `- ${o.label} (${o.matchScore}% match)`
-).join('\n')}
-
-Task: Generate encouraging, actionable career guidance. Remember, this is for a young person (16-25) - be supportive and realistic.
-
-Return ONLY valid JSON (no markdown):
-{
-  "executiveSummary": "2-3 sentences about their overall skill profile",
-  "keyStrengths": ["Strength 1 with brief explanation", "Strength 2", "Strength 3"],
-  "growthOpportunities": ["Skill to develop and why", "Another skill and why", "Third skill and why"],
-  "careerRecommendations": "Paragraph about their career options and next steps",
-  "learningPath": ["First step to take", "Second step", "Third step"],
-  "encouragement": "Positive, motivating closing message"
-}`;
-
-  const response = await invokeClaude(prompt, 3000, 0.7);
+  const agentId = 'XCZN9FTONE';
+  const agentAliasId = 'TSTALIASID'; // Use test alias or create specific alias
   
+  // Prepare input for the agent
+  const inputData = {
+    userProfile: {
+      currentSituation: userProfile.currentSituation,
+      primaryGoal: userProfile.primaryGoal,
+      interests: userProfile.interests
+    },
+    identifiedSkills: identifiedSkills.slice(0, 8).map(s => ({
+      skillLabel: s.skillLabel,
+      confidence: s.confidence,
+      proficiencyLevel: s.proficiencyLevel
+    })),
+    topOccupations: topOccupations.slice(0, 5).map(o => ({
+      label: o.label,
+      matchScore: o.matchScore
+    }))
+  };
+
+  const sessionId = `session-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+  
+  console.info('Calling Bedrock Agent with input:', inputData);
+
   try {
-    const content = response.content[0].text;
+    const command = new InvokeAgentCommand({
+      agentId,
+      agentAliasId,
+      sessionId,
+      inputText: JSON.stringify(inputData)
+    });
+
+    const response = await bedrockAgentClient.send(command);
+    
+    // Collect response chunks from the stream
+    let fullResponse = '';
+    if (response.completion) {
+      for await (const chunk of response.completion) {
+        if (chunk.chunk?.bytes) {
+          const text = new TextDecoder().decode(chunk.chunk.bytes);
+          fullResponse += text;
+        }
+      }
+    }
+
+    console.info('Agent response:', fullResponse);
+
+    // Parse the agent's response
     try {
-      return JSON.parse(content);
+      return JSON.parse(fullResponse);
     } catch {
-      const jsonMatch = content.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/) || 
-                       content.match(/(\{[\s\S]*\})/);
+      console.warn('Direct JSON parse failed, attempting to extract JSON from response');
+      // Try to extract JSON from response
+      const jsonMatch = fullResponse.match(/```(?:json)?\s*(\{[\s\S]*\})\s*```/) || 
+                       fullResponse.match(/(\{[\s\S]*\})/);
       if (jsonMatch) {
+        console.info('Extracted JSON from response:', jsonMatch[1]);
         return JSON.parse(jsonMatch[1]);
       }
-      throw new Error('Could not extract JSON from response');
+      throw new Error('Could not extract JSON from agent response');
     }
   } catch (error) {
-    console.error('Failed to parse Bedrock response:', response);
-    throw new Error('Invalid response format from Bedrock');
+    console.error('Bedrock Agent Error:', error);
+    throw new Error(`Failed to invoke Bedrock Agent: ${error}`);
   }
 }
 
@@ -328,6 +375,14 @@ export async function suggestOccupationsFromSkills(
     .filter(s => s.confidence >= 60)
     .sort((a, b) => b.confidence - a.confidence)
     .slice(0, 10);
+
+    // console.info({
+    //   location: userProfile.location || 'UK',
+    //   currentSituation: userProfile.currentSituation || 'Exploring career options',
+    //   primaryGoal: userProfile.primaryGoal || 'Find a suitable career path',
+    //   interests: userProfile.interests || [],
+    //   topSkills: topSkills,
+    // });
 
   const prompt = `You are a career counselor using the ESCO (European Skills, Competences, Qualifications and Occupations) framework.
 

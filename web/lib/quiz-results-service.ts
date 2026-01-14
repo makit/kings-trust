@@ -66,6 +66,25 @@ export interface AIInsights {
   growthOpportunities: string[];
   careerRecommendations: string;
   learningPath: string[];
+  recommendedEvents: Array<{
+    title: string;
+    category: string;
+    careerLevel: string;
+    city: string;
+    venue: string;
+    date: string;
+    format: string;
+    skills: string[];
+    relevanceReason: string;
+  }>;
+  recommendedKingsTrustCourses: Array<{
+    courseName: string;
+    programmeType: string;
+    targetAudience: string;
+    skillsSupported: string[];
+    relevanceReason: string;
+    courseLink: string;
+  }>;
   encouragement: string;
 }
 
