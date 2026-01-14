@@ -36,12 +36,7 @@ cd web
 npm install
 ```
 
-3. Import CSV data to SQLite:
-```bash
-npm run import-data
-```
-
-4. Start the development server:
+3. Start the development server:
 ```bash
 npm run dev
 ```
