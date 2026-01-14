@@ -112,38 +112,78 @@ From the `infra/` directory:
 - `cdk deploy` - Deploy to AWS
 - `cdk destroy` - Remove all AWS resources
 
-## Documentation
-
-- [web/PROJECT_SPEC.md](web/PROJECT_SPEC.md) - Comprehensive project specification
-- [web/QUIZ_IMPLEMENTATION.md](web/QUIZ_IMPLEMENTATION.md) - Quiz system details
-- [web/BAYESIAN_QUIZ.md](web/BAYESIAN_QUIZ.md) - Bayesian engine documentation
-- [infra/DEPLOYMENT.md](infra/DEPLOYMENT.md) - AWS deployment guide
-- [infra/SETUP_SUMMARY.md](infra/SETUP_SUMMARY.md) - Infrastructure overview
-
 ## Data Source
 
 All occupation and skills data comes from the [ESCO Portal](https://esco.ec.europa.eu/) via [Tabiya Open Taxonomy](https://tabiya.tech/). ESCO provides a standardized, multilingual classification system used across Europe for education, training, and employment.
 
-## Development Notes
+## Quiz System
 
-### Unused Code Analysis
+The adaptive quiz is the core feature of this platform, using advanced Bayesian inference and AI to efficiently identify user skills through intelligent questioning.
 
-Several documentation markdown files exist in `web/` describing feature evolution:
-- `BAYESIAN_*.md` - Bayesian quiz system documentation
-- `LLM_OCCUPATION_MATCHING.md` - LLM matching approach
-- `SKILL_MAPPING_FIX.md` - Historical fix documentation
+### Two-Stage Architecture
 
-These are kept for reference but can be removed if not needed.
+**Stage 1: Broad Orientation (4-5 questions)**
+- Quickly clusters users based on fundamental preferences
+- Questions cover: work preferences (people/things/information), work style (structured/variety), environment (indoor/outdoor), collaboration style (team/solo), and work pace (fast/steady)
+- Each answer updates probability distributions across 8 predefined user clusters:
+  - People Helper
+  - Creative Maker
+  - Tech Problem Solver
+  - Action Outdoor
+  - Organizer & Coordinator
+  - Entrepreneur & Persuader
+  - Care & Support Specialist
+  - Analyst & Researcher
 
-### Code Organization
+**Stage 2: Adaptive Skill Confirmation (8-15 questions)**
+- Uses **information gain maximization** to select the most informative questions
+- Calculates Shannon entropy to measure uncertainty and selects questions that reduce it most effectively
+- Questions are dynamically chosen from a bank of 100+ skill-specific questions
+- Mix of question types:
+  - **Scale questions** (1-5 ratings) for proficiency self-assessment
+  - **Scenario questions** for behavioral evaluation
+  - **AI-generated questions** (max 3 per quiz) using AWS Bedrock for contextual follow-ups
+- Stops when uncertainty is low enough OR maximum questions reached
 
-Key refactorings completed:
-- **Quiz Results Service** ([web/lib/quiz-results-service.ts](web/lib/quiz-results-service.ts)) - Centralized results generation with clean API for easy swapping between local and remote computation
-- All quiz logic uses the Bayesian engine with clear separation of concerns
+### Bayesian Inference Engine
 
-## Contributing
+The quiz uses **Bayes' theorem** to continuously update beliefs about user skills:
 
-This project was built for the Kings Trust. For detailed specifications, see [web/PROJECT_SPEC.md](web/PROJECT_SPEC.md).
+```
+P(skill|answer) ∝ P(answer|skill) × P(skill)
+```
+
+- Each question has pre-tuned likelihoods for how different clusters would answer
+- As users answer, posterior probabilities are calculated and normalized
+- The system tracks probability distributions over clusters, skills, and occupations
+- **Entropy** measures uncertainty: lower entropy = more confident predictions
+
+### AI-Powered Adaptation
+
+Integrates AWS Bedrock (Claude Sonnet) for enhanced adaptability:
+- **Generates contextual scenario questions** based on user's profile and uncertain skills
+- **Analyzes free-text responses** to identify skills beyond predefined options
+- **Adapts difficulty** based on user's age, location, and previous responses
+- Injects AI questions strategically (at questions 3, 7, and 11) for variety
+
+### Real-Time Matching
+
+As users answer questions:
+1. **Cluster probabilities** update after each response
+2. **Skill probabilities** are inferred from cluster distributions and direct evidence
+3. **Occupation matches** are calculated by comparing user's skills to ESCO occupation requirements
+4. **Top matches** are continuously refined throughout the quiz
+
+### Technical Implementation
+
+- **Database**: Stores quiz sessions, responses, and identified skills (SQLite dev / Aurora production)
+- **State Management**: Maintains Bayesian state across API calls
+- **Question Selection**: `adaptive-quiz-controller.ts` orchestrates the flow
+- **Bayesian Core**: `bayesian-quiz-engine.ts` handles all probability calculations
+- **AI Integration**: `ai-adaptive-questions.ts` manages Bedrock interactions
+
+The result is a quiz that feels natural and conversational while being mathematically optimal for discovering skills in the shortest time possible.
+
 
 ## License
 

@@ -210,12 +210,6 @@ export function shouldInjectAIQuestion(
   // Only in Stage 2
   if (bayesianState.stage !== 2) return false;
 
-  // Don't do AI questions if Bedrock not configured (check for non-empty values)
-  if (!process.env.AWS_ACCESS_KEY_ID || process.env.AWS_ACCESS_KEY_ID.length < 10) {
-    console.log('[AI Questions] AWS credentials not configured - skipping AI questions');
-    return false;
-  }
-
   // Inject every 4-5 questions
   const aiQuestionsSoFar = bayesianState.questionsAsked.filter(
     q => q.startsWith('ai_scenario_')

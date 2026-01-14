@@ -1,1 +1,0 @@
-Remove DB... just use string for skills and then LLM to suggest jobs for them? 

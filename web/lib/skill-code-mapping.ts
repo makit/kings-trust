@@ -6,67 +6,41 @@
  */
 
 export const SKILL_CODE_MAPPING: Record<string, string> = {
-  // Communication & Language Skills
-  'S1.0.1': 'key_2927', // Communication → communicate with customers
-  'S1.0.2': 'key_2927', // Persuasion → communicate with customers
-  'S1.0.3': 'key_10548', // Instruction → teach languages
-  
-  // Social & Emotional Skills
-  'S2.2.1': 'key_7837', // Empathy → show empathy
-  
-  // Analytical & Problem-Solving
-  'S1.3.1': 'key_1428', // Analytical thinking → create solutions to problems
-  'S2.1.1': 'key_1428', // Research → create solutions to problems
-  'S2.1.2': 'key_10726', // Medical diagnosis → solve problems
-  'S2.1.3': 'key_1428', // Technical interpretation → create solutions to problems
-  
-  // Organizational Skills
-  'S4.1.1': 'key_8093', // Opportunity identification → apply organisational techniques
-  'S4.1.2': 'key_1411', // Planning → plan retail space
-  'S4.1.3': 'key_8093', // Policy development → apply organisational techniques
-  'S4.3.1': 'key_1354', // Budget/resource management → manage supplies
-  
-  // People Skills & Care
-  'S3.1.1': 'key_1490', // Counseling → support harmed social service users
-  'S3.2.1': 'key_7837', // Medical care → show empathy
-  'S3.2.2': 'key_10726', // Surgical procedures → solve problems
-  'S3.4.4': 'key_1490', // General assistance → support harmed social service users
-  
-  // Conflict & Negotiation
-  'S9.3.1': 'key_2927', // Negotiation → communicate with customers
-  'S9.3.3': 'key_1428', // Conflict resolution → create solutions to problems
-  
-  // Technical Skills
-  'S5.1.1': 'key_1428', // Programming → create solutions to problems
-  'S5.1.2': 'key_1428', // System administration → create solutions to problems
-  'S5.2.1': 'key_3596', // Equipment operation → manipulate tools
-  
-  // Creative Skills
-  'S6.1.1': 'key_11134', // Design → develop artistic project
-  'S6.1.2': 'key_11134', // Visual arts → develop artistic project
-  'S6.2.1': 'key_11134', // Music → develop artistic project
-  
-  // Physical & Outdoor
-  'S7.1.1': 'key_3596', // Manual dexterity → manipulate tools
-  'S7.1.2': 'key_3596', // Physical coordination → manipulate tools
-  'S7.2.1': 'key_3596', // Equipment maintenance → manipulate tools
-  
-  // Leadership & Management
-  'S8.1.1': 'key_1260', // Team leadership → manage musical staff (generic management)
-  'S8.1.2': 'key_8093', // Delegation → apply organisational techniques
-  'S8.2.1': 'key_8093', // Strategic planning → apply organisational techniques
-  
-  // Entrepreneurial Skills
-  'S10.1.1': 'key_8093', // Business development → apply organisational techniques
-  'S10.1.2': 'key_2927', // Sales → communicate with customers
-  'S10.2.1': 'key_1284', // Risk assessment → enterprise risk management
-  
-  // Adaptability & Learning
-  'S11.1.1': 'key_1428', // Learning agility → create solutions to problems
-  'S11.1.2': 'key_1428', // Flexibility → create solutions to problems
-  
-  // Teaching & Training
-  'S1.3.3': 'key_10548', // Training → teach languages
+  'S1.0.1': 'key_2426', // Communication
+  'S1.0.2': 'key_1958', // persuade clients with alternatives
+  'S1.0.3': 'key_2079', // communicate verbal instructions
+  'S2.2.1': 'key_7837', // show empathy
+  'S1.3.1': 'key_5129', // think analytically
+  'S2.1.1': 'key_4795', // exercise self-reflection
+  'S4.3.1': 'key_1268', // show initiative
+  'S1.3.3': 'key_10726', // solve problems
+  'S3.4.5': 'key_12014', // think creatively
+  'S9.2.1': 'key_10308', // teamwork principles
+  'S2.1.3': 'key_7961', // cope with stress
+  'S3.2.3': 'key_6408', // apply numeracy skills
+  'S4.1.1': 'key_2240', // work in an organised manner
+  'S4.1.2': 'key_13027', // manage time
+  'S4.1.3': 'key_13611', // plan 
+  'S3.2.1': 'key_4015', // use ICT systems
+  'S3.2.2': 'key_12168', // use ICT systems
+  'S4.3.2': 'key_5277', // adapt to change
+  'S2.2.2': 'key_10081', // listen actively
+  'S1.3.2': 'key_11803', // think innovately
+  'S3.4.3': 'key_2299', // adjust to physical demands
+  'S9.2.2': 'key_7837', // Need something aorund helping
+  'S9.3.3': 'key_9536',   // resolve conflicts
+  'S5.2.1': 'key_1422',   // carry out event management
+  'S6.1.1': 'key_7961',   // cope with stress
+  'S6.1.2': 'key_7972',   // deal with pressure from unexpected circumstances
+  'S6.2.1': 'key_6344',   // cope with uncertainty
+  'S10.2.1': 'key_2865',   // perform risk analysis
+  'S9.3.1': 'key_7738', // lead others
+  'T4.1.3': 'key_7923', // negotiate compromises
+  'S3.1.1': 'key_9817', // demonstrate willingness to learn
+  'P3.1.1': 'key_13877', // perform manual work autonomously
+  'S2.1.2': 'key_6210', // exercise self-control
+  'S3.4.4': 'key_8108', // use hand tools
+  'S5.1.2': 'key_9810'   // follow reporting procedures
 };
 
 /**

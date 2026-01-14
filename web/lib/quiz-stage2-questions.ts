@@ -97,7 +97,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           },
           skillLikelihoods: {
             'S9.3.3': 0.9, // Conflict resolution
-            'S9.3.1': 0.8, // Negotiation
+            'T4.1.3': 0.8, // Negotiation
             'S1.0.1': 0.7  // Communication
           }
         },
@@ -184,7 +184,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           skillLikelihoods: {
             'S3.4.5': 0.8, // Creativity
             'S1.0.2': 0.7, // Persuasion
-            'S3.1.1': 0.7  // Practical skills
+            'P3.1.1': 0.7  // Practical skills
           }
         },
         {
@@ -593,7 +593,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           },
           skillLikelihoods: {
             'S3.4.5': 0.8, // Creativity
-            'S3.1.1': 0.8, // Practical skills
+            'P3.1.1': 0.8, // Practical skills
             'S4.3.1': 0.8  // Initiative
           }
         },
@@ -682,7 +682,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           },
           skillLikelihoods: {
             'S3.4.4': 0.9, // Manual dexterity
-            'S3.1.1': 0.8, // Practical skills
+            'P3.1.1': 0.8, // Practical skills
             'S1.3.3': 0.7  // Problem solving
           }
         },
@@ -701,8 +701,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           },
           skillLikelihoods: {
             'S3.4.5': 0.9, // Creativity
-            'S3.4.4': 0.7, // Coordination
-            'S2.1.2': 0.8  // Self-discipline
+            'S2.1.2': 0.6  // Self-discipline
           }
         },
         {
@@ -721,7 +720,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           skillLikelihoods: {}
         }
       ],
-      targetSkills: ['S3.4.3', 'S3.4.4', 'S3.4.5'],
+      targetSkills: ['S3.4.3', 'S3.4.4', 'S3.4.5'], // TODO
       targetClusters: ['action-outdoor', 'creative-maker'],
       difficulty: 1
     },
@@ -811,7 +810,7 @@ export function getStage2QuestionBank(): AdaptiveQuestion[] {
           }
         }
       ],
-      targetSkills: ['S9.3.1', 'S9.2.1', 'S4.3.1'],
+      targetSkills: ['S9.3.1', 'S9.2.1', 'S4.3.1'], // TODO WHAT
       targetClusters: ['entrepreneur-persuader', 'organizer-coordinator', 'helper-people'],
       difficulty: 2
     },
