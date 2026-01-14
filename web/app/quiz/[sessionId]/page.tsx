@@ -275,8 +275,8 @@ export default function QuizSessionPage() {
         {/* Motivation Message */}
         <div className="text-center">
           <p className="text-sm text-[#323232]/60">
-            {progress.percentage < 30 && "You&apos;re doing great! Keep going! 💪"}
-            {progress.percentage >= 30 && progress.percentage < 60 && "Awesome progress! You&apos;re almost halfway! 🎯"}
+            {progress.percentage < 30 && "You're doing great! Keep going! 💪"}
+            {progress.percentage >= 30 && progress.percentage < 60 && "Awesome progress! You're almost halfway! 🎯"}
             {progress.percentage >= 60 && progress.percentage < 90 && "Nearly there! Keep it up! 🚀"}
             {progress.percentage >= 90 && "Final stretch! You've got this! 🏆"}
           </p>
