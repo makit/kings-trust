@@ -252,16 +252,23 @@ export default function QuizResultsPage() {
           {result.aiInsights.learningPath && result.aiInsights.learningPath.length > 0 && (
             <div className="mb-6">
               <h3 className="font-semibold text-lg mb-3">Your Learning Path</h3>
-              <ol className="space-y-2">
-                {result.aiInsights.learningPath.map((step, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <span className="flex-shrink-0 w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center text-sm font-bold">
-                      {i + 1}
-                    </span>
-                    <span className="text-gray-700 pt-0.5">{step}</span>
-                  </li>
-                ))}
-              </ol>
+              <div className="relative">
+                {/* Connecting line */}
+                <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-purple-600 via-blue-500 to-green-500" />
+                
+                <div className="space-y-6">
+                  {result.aiInsights.learningPath.map((step, i) => (
+                    <div key={i} className="flex items-start gap-4 relative">
+                      <span className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-blue-500 text-white flex items-center justify-center text-lg font-bold shadow-lg z-10">
+                        {i + 1}
+                      </span>
+                      <div className="flex-1 bg-white rounded-xl p-4 shadow-md border-2 border-purple-200 hover:border-purple-400 transition-all">
+                        <p className="text-gray-800 font-medium">{step}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -315,52 +322,63 @@ export default function QuizResultsPage() {
 
       {/* Recommended Courses */}
       {result.aiInsights?.recommendedKingsTrustCourses && result.aiInsights.recommendedKingsTrustCourses.length > 0 && (
-        <div className="bg-gradient-to-br from-brand-red/5 to-secondary-500/5 rounded-lg shadow-md p-8 mb-8 border-2 border-brand-red/20">
+        <div className="bg-white rounded-lg shadow-md p-8 mb-8">
           <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
             <span className="text-2xl">🎓</span>
             King's Trust Courses for You
           </h2>
           <div className="space-y-4">
             {result.aiInsights.recommendedKingsTrustCourses.map((course, i) => (
-              <div
+              <a
                 key={i}
-                className="bg-white rounded-lg p-5 border-2 border-gray-200 hover:border-brand-red transition-colors"
+                href={course.courseLink || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-5 border-2 border-brand-red/30 rounded-lg hover:border-brand-red hover:shadow-lg transition-all bg-gradient-to-br from-brand-red/5 to-secondary-500/5 group"
               >
-                <h3 className="font-semibold text-xl text-gray-900 mb-2">{course.courseName}</h3>
-                <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-600 mb-3">
-                  <div>
-                    <p><strong>Programme Type:</strong> {course.programmeType}</p>
-                    <p><strong>Target Audience:</strong> {course.targetAudience}</p>
-                  </div>
-                  <div>
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h3 className="font-semibold text-xl text-gray-900 group-hover:text-brand-red transition-colors">
+                        {course.courseName}
+                      </h3>
+                      <span className="text-brand-red group-hover:translate-x-1 transition-transform">→</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      <span className="px-3 py-1 bg-white border border-brand-red/30 text-brand-red text-xs font-medium rounded-full">
+                        {course.programmeType}
+                      </span>
+                      <span className="px-3 py-1 bg-white border border-secondary-500/30 text-secondary-700 text-xs font-medium rounded-full">
+                        {course.targetAudience}
+                      </span>
+                    </div>
                     {course.skillsSupported.length > 0 && (
-                      <div>
-                        <strong>Skills Supported:</strong>
-                        <div className="flex flex-wrap gap-1 mt-1">
+                      <div className="mb-3">
+                        <div className="flex flex-wrap gap-1">
                           {course.skillsSupported.map((skill, idx) => (
-                            <span key={idx} className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs">
+                            <span key={idx} className="px-2 py-0.5 bg-green-100 text-green-700 rounded text-xs font-medium">
                               {skill}
                             </span>
                           ))}
                         </div>
                       </div>
                     )}
+                    <p className="text-sm text-gray-700 italic">
+                      💡 {course.relevanceReason}
+                    </p>
+                  </div>
+                  <div className="ml-4">
+                    <div className="w-12 h-12 rounded-full bg-brand-red text-white flex items-center justify-center font-bold text-lg group-hover:scale-110 transition-transform">
+                      🎓
+                    </div>
                   </div>
                 </div>
-                <p className="text-sm text-brand-red mb-3 italic">💡 {course.relevanceReason}</p>
-                {course.courseLink && (
-                  <a
-                    href={course.courseLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block px-4 py-2 bg-brand-red text-white rounded-lg hover:bg-brand-red/90 transition-colors text-sm font-medium"
-                  >
-                    Learn More →
-                  </a>
-                )}
-              </div>
+              </a>
             ))}
           </div>
+          <p className="text-sm text-gray-500 mt-6 text-center">
+            💡 Click any course to learn more on The King's Trust website
+          </p>
         </div>
       )}
 
