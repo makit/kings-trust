@@ -32,8 +32,8 @@ RUN adduser --system --uid 1001 nextjs
 # Copy necessary files (public directory may not exist)
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/data ./data
-COPY --from=builder /app/esco.db ./esco.db
+COPY --from=builder --chown=nextjs:nodejs /app/data ./data
+COPY --from=builder --chown=nextjs:nodejs /app/esco.db ./esco.db
 
 USER nextjs
 

@@ -69,6 +69,21 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* Browse Section */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-3xl font-bold text-center mb-8 text-[#323232]">Or Explore On Your Own</h2>
+        <div className="grid md:grid-cols-2 gap-6">
+          <Link href="/occupations" className="block bg-white p-8 rounded-3xl shadow-lg border-2 border-brand-red/10 hover:border-brand-red/30 transition-all hover:shadow-xl transform hover:scale-[1.02]">
+            <h3 className="text-2xl font-bold mb-3 text-[#323232]">🎯 Browse Occupations</h3>
+            <p className="text-[#323232]/70">Explore hundreds of careers and see what skills you need for each one.</p>
+          </Link>
+          <Link href="/skills" className="block bg-white p-8 rounded-3xl shadow-lg border-2 border-secondary-500/10 hover:border-secondary-500/30 transition-all hover:shadow-xl transform hover:scale-[1.02]">
+            <h3 className="text-2xl font-bold mb-3 text-[#323232]">⚡ Browse Skills</h3>
+            <p className="text-[#323232]/70">Discover skills and find out which careers use them.</p>
+          </Link>
+        </div>
+      </div>
+
       {/* CTA Section */}
       <div className="bg-gradient-to-br from-brand-red to-brand-red/90 text-white mt-16">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">

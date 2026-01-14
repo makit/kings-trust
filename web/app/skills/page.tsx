@@ -25,7 +25,7 @@ export default async function SkillsPage({
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">Skills Browser</h1>
         <p className="text-lg text-gray-600">
-          Explore {total.toLocaleString()} skills from the ESCO taxonomy
+          Explore {total.toLocaleString()} skills
         </p>
       </div>
 

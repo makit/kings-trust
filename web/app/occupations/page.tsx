@@ -26,7 +26,7 @@ export default async function OccupationsPage({
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-2">Occupations Browser</h1>
         <p className="text-lg text-gray-600">
-          Explore {total.toLocaleString()} occupations from the ESCO taxonomy
+          Explore {total.toLocaleString()} occupations
         </p>
       </div>
 
@@ -60,14 +60,6 @@ export default async function OccupationsPage({
                   </div>
                   
                   <div className="flex flex-wrap gap-2">
-                    <span className="px-3 py-1 bg-primary-100 text-primary-700 rounded-full text-sm font-medium">
-                      {occupation.occupation_type === 'escooccupation' ? 'ESCO' : 'Local'}
-                    </span>
-                    {occupation.isco_group_code && (
-                      <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                        ISCO: {occupation.isco_group_code}
-                      </span>
-                    )}
                     {altLabels.length > 0 && (
                       <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
                         +{altLabels.length} alternative names

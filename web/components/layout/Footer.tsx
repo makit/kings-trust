@@ -6,6 +6,17 @@ export default function Footer() {
     <footer className="bg-white border-t-2 border-brand-red/10 mt-auto">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col items-center gap-4 text-center">
+          <div className="flex items-center gap-6 mb-2">
+            <Link href="/occupations" className="text-sm text-[#323232]/70 hover:text-brand-red transition-colors">
+              Browse Occupations
+            </Link>
+            <Link href="/skills" className="text-sm text-[#323232]/70 hover:text-brand-red transition-colors">
+              Browse Skills
+            </Link>
+            <Link href="/quiz" className="text-sm text-[#323232]/70 hover:text-brand-red transition-colors">
+              Take Quiz
+            </Link>
+          </div>
           <p className="text-sm text-[#323232]/70 flex items-center gap-2">
             Made with <Heart size={16} className="text-brand-red fill-brand-red inline animate-pulse" /> by King&apos;s Trust
           </p>

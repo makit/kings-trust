@@ -26,6 +26,34 @@ export default function Header() {
           {/* Navigation */}
           <nav className="flex items-center gap-3">
             <Link
+              href="/occupations"
+              className={`
+                px-4 py-2 rounded-full font-semibold text-sm
+                transform hover:scale-105 active:scale-95
+                transition-all duration-200
+                ${isActive('/occupations')
+                  ? 'bg-brand-red text-white'
+                  : 'text-[#323232] hover:text-brand-red'
+                }
+              `}
+            >
+              🎯 Occupations
+            </Link>
+            <Link
+              href="/skills"
+              className={`
+                px-4 py-2 rounded-full font-semibold text-sm
+                transform hover:scale-105 active:scale-95
+                transition-all duration-200
+                ${isActive('/skills')
+                  ? 'bg-brand-red text-white'
+                  : 'text-[#323232] hover:text-brand-red'
+                }
+              `}
+            >
+              ⚡ Skills
+            </Link>
+            <Link
               href="/quiz"
               className={`
                 px-5 py-2.5 rounded-full font-semibold text-sm
