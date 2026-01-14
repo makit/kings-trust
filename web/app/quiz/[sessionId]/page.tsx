@@ -9,7 +9,7 @@ const TOTAL_QUESTIONS = 15;
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Sparkles, Target } from 'lucide-react';
+import { Sparkles, Target, Loader2 } from 'lucide-react';
 import MultipleChoice from '@/components/quiz/MultipleChoice';
 import MultiSelect from '@/components/quiz/MultiSelect';
 import FreeText from '@/components/quiz/FreeText';
@@ -173,7 +173,12 @@ export default function QuizSessionPage() {
           <div className="fixed inset-0 z-50 flex items-center justify-center animate-bounce-in">
             <div className="bg-white rounded-3xl p-8 shadow-2xl text-center transform scale-110 max-w-md">
               <div className="text-6xl mb-2">🎉</div>
-              <p className="text-xl font-bold text-brand-red">{successMessage}</p>
+              <p className="text-xl font-bold text-brand-red gap-3">{successMessage}</p>
+              {/* Spinner + thinking text */}
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <Loader2 size={28} className="animate-spin text-brand-red" aria-hidden="true" />
+                <span className="text-sm text-[#323232]/70 font-medium">thinking....</span>
+              </div>
             </div>
           </div>
         </div>
@@ -203,12 +208,12 @@ export default function QuizSessionPage() {
         <div className="flex items-center gap-2 mb-4">
           <div className={`
             px-3 py-1 rounded-full text-xs font-semibold
-            ${question.phase === 1 
+            ${question.question_id.includes('stage1') 
               ? 'bg-brand-red/10 text-brand-red' 
               : 'bg-secondary-500/10 text-secondary-500'
             }
           `}>
-            {question.phase === 1 ? '👋 Getting to know you' : '💪 Discovering your skills'}
+            {question.question_id.includes('stage1') && question.type !== 'scenario' ? '👋 Getting to know you' : question.type === "scenario" ? '🤖 Personalised Scenario Question' : '💪 Discovering your skills'}
           </div>
         </div>
 

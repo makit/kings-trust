@@ -214,7 +214,7 @@ export default function QuizResultsPage() {
             {result.aiInsights.executiveSummary}
           </p>
 
-          {result.aiInsights.keyStrengths.length > 0 && (
+          {result.aiInsights?.keyStrengths?.length || 0 > 0 && (
             <div className="mb-6">
               <h3 className="font-semibold text-lg mb-3">Your Key Strengths</h3>
               <ul className="space-y-2">
