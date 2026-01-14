@@ -334,9 +334,10 @@ async function generateAIInsights(
   }
 ): Promise<AIInsights | null> {
   try {
-    // Only generate insights if AWS credentials are configured
-    if (!process.env.AWS_ACCESS_KEY_ID) {
-      console.log('[Results] AWS Bedrock not configured, skipping AI insights');
+    // In production (ECS), credentials come from task role
+    // In development, skip if no credentials configured
+    if (process.env.NODE_ENV === 'development' && !process.env.AWS_ACCESS_KEY_ID) {
+      console.log('[Results] AWS Bedrock not configured in development, skipping AI insights');
       return null;
     }
     
