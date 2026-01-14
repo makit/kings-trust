@@ -28,7 +28,7 @@ export default function Header() {
             <Link
               href="/occupations"
               className={`
-                px-4 py-2 rounded-full font-semibold text-sm
+                inline-flex items-center justify-center h-10 px-4 rounded-full font-semibold text-sm text-center
                 transform hover:scale-105 active:scale-95
                 transition-all duration-200
                 ${isActive('/occupations')
@@ -42,7 +42,7 @@ export default function Header() {
             <Link
               href="/skills"
               className={`
-                px-4 py-2 rounded-full font-semibold text-sm
+                inline-flex items-center justify-center h-10 px-4 rounded-full font-semibold text-sm text-center
                 transform hover:scale-105 active:scale-95
                 transition-all duration-200
                 ${isActive('/skills')
@@ -56,7 +56,7 @@ export default function Header() {
             <Link
               href="/quiz"
               className={`
-                px-5 py-2.5 rounded-full font-semibold text-sm
+                inline-flex items-center justify-center h-10 px-4 rounded-full font-semibold text-sm text-center
                 transform hover:scale-105 active:scale-95
                 transition-all duration-200 shadow-md hover:shadow-lg
                 ${isActive('/quiz')
