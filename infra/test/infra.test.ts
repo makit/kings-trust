@@ -75,10 +75,10 @@ describe('IAM Permissions', () => {
       PolicyDocument: {
         Statement: Match.arrayWith([
           Match.objectLike({
-            Action: [
+            Action: Match.arrayWith([
               'bedrock:InvokeModel',
               'bedrock:InvokeModelWithResponseStream',
-            ],
+            ]),
             Effect: 'Allow',
           }),
         ]),

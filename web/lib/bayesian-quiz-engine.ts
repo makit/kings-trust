@@ -253,8 +253,8 @@ export function initializeBayesianState(sessionId: string): BayesianQuizState {
     questionsAsked: [],
     questionsRemaining: [],
     targetUncertainty: 0.5, // bits
-    minQuestions: 8,
-    maxQuestions: 15
+    minQuestions: 4,
+    maxQuestions: 8
   };
 }
 

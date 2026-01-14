@@ -16,7 +16,7 @@ export default function QuizPage() {
             <Sparkles size={40} className="text-white" />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-[#323232] mb-4">
-            Discover What You're Great At! 🎯
+            Discover What You&apos;re Great At! 🎯
           </h1>
           <p className="text-xl text-[#323232]/70 mb-2">
             Quick quiz, real results, zero boring stuff
@@ -107,7 +107,7 @@ export default function QuizPage() {
                 ✓
               </div>
               <span className="text-[#323232]">
-                <strong>Your skills profile</strong> - See what you're naturally good at
+                <strong>Your skills profile</strong> - See what you&apos;re naturally good at
               </span>
             </li>
             <li className="flex items-start gap-3">

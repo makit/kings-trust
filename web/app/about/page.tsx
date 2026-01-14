@@ -26,7 +26,7 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">About This Platform</h2>
           <p className="text-gray-700 leading-relaxed mb-4">
             This platform helps users discover career opportunities based on their skills using 
-            ESCO taxonomy data. Whether you're exploring new career paths, looking to upskill, 
+            ESCO taxonomy data. Whether you&apos;re exploring new career paths, looking to upskill, 
             or trying to understand what occupations match your abilities, this tool provides 
             insights based on standardized European classification data.
           </p>

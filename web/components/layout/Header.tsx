@@ -37,7 +37,7 @@ export default function Header() {
                 }
               `}
             >
-              🎯 Occupations
+              Occupations
             </Link>
             <Link
               href="/skills"
@@ -51,7 +51,7 @@ export default function Header() {
                 }
               `}
             >
-              ⚡ Skills
+              Skills
             </Link>
             <Link
               href="/quiz"
