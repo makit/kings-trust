@@ -127,7 +127,7 @@ export class InfraStack extends cdk.Stack {
     const fargateService = new ecs.FargateService(this, 'NextJsService', {
       cluster,
       taskDefinition,
-      desiredCount: 2,
+      desiredCount: 1,
       serviceName: 'kings-trust-nextjs',
       assignPublicIp: false,
       vpcSubnets: {
@@ -154,7 +154,7 @@ export class InfraStack extends cdk.Stack {
 
     // Configure Auto Scaling
     const scaling = fargateService.autoScaleTaskCount({
-      minCapacity: 2,
+      minCapacity: 1,
       maxCapacity: 10,
     });
 
