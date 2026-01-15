@@ -51,8 +51,8 @@ export class InfraStack extends cdk.Stack {
 
     // Create Fargate Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'NextJsTaskDef', {
-      memoryLimitMiB: 2048,
-      cpu: 1024,
+      memoryLimitMiB: 8192,
+      cpu: 4096,
       executionRole,
       taskRole,
     });
@@ -150,7 +150,7 @@ export class InfraStack extends cdk.Stack {
     // Configure Auto Scaling
     const scaling = fargateService.autoScaleTaskCount({
       minCapacity: 1,
-      maxCapacity: 10,
+      maxCapacity: 1, // Temp until we add a DB
     });
 
     // Scale based on CPU utilization
