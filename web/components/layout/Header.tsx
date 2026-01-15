@@ -24,11 +24,11 @@ export default function Header() {
           </Link>
 
           {/* Navigation */}
-          <nav className="flex items-center gap-3">
+          <nav className="flex items-center gap-1 sm:gap-3">
             <Link
               href="/occupations"
               className={`
-                inline-flex items-center justify-center h-10 px-4 rounded-full font-semibold text-sm text-center
+                hidden sm:inline-flex items-center justify-center h-10 px-3 sm:px-4 rounded-full font-semibold text-sm text-center
                 transform hover:scale-105 active:scale-95
                 transition-all duration-200
                 ${isActive('/occupations')
@@ -42,7 +42,7 @@ export default function Header() {
             <Link
               href="/skills"
               className={`
-                inline-flex items-center justify-center h-10 px-4 rounded-full font-semibold text-sm text-center
+                hidden sm:inline-flex items-center justify-center h-10 px-3 sm:px-4 rounded-full font-semibold text-sm text-center
                 transform hover:scale-105 active:scale-95
                 transition-all duration-200
                 ${isActive('/skills')
@@ -56,7 +56,7 @@ export default function Header() {
             <Link
               href="/quiz"
               className={`
-                inline-flex items-center justify-center h-10 px-4 rounded-full font-semibold text-sm text-center
+                inline-flex items-center justify-center h-10 px-3 sm:px-4 rounded-full font-semibold text-sm text-center
                 transform hover:scale-105 active:scale-95
                 transition-all duration-200 shadow-md hover:shadow-lg
                 ${isActive('/quiz')
