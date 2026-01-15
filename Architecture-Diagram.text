@@ -1,0 +1,164 @@
+╔════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                                    KINGS TRUST ARCHITECTURE                                                        ║
+╚════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                          USERS (YOUNG PEOPLE)                                                   │
+└────────────────────────────────────┬────────────────────────────────────────────────────────────────────────────┘
+                                     │
+                    ┌────────────────┴────────────────┐
+                    │                                 │
+        ┌───────────▼──────────────┐      ┌──────────▼────────────┐
+        │   Browser / Mobile       │      │   Browser / Mobile    │
+        │   (HTTP/HTTPS)           │      │   (HTTP/HTTPS)        │
+        └───────────┬──────────────┘      └──────────┬────────────┘
+                    │                                │
+                    └────────────────┬───────────────┘
+                                     │
+                    ┌────────────────▼────────────────┐
+                    │      CloudFront CDN             │
+                    │   (HTTPS + Caching)             │
+                    └────────────────┬────────────────┘
+                                     │
+                    ┌────────────────▼────────────────┐
+                    │   Application Load Balancer     │
+                    │   (Port 80 → 443 redirect)      │
+                    └────────────────┬────────────────┘
+                                     │
+        ┌────────────────────────────┴─────────────────────────────┐
+        │                         VPC                              │
+        │  ┌─────────────────────────────────────────────────────┐ │
+        │  │          Public Subnets (2 AZs)                     │ │
+        │  │  ┌──────────────────────────────────────────────┐   │ │
+        │  │  │   ECS Fargate Cluster (Auto-scaling)         │   │ │
+        │  │  │   ┌────────────────────────────────────────┐ │   │ │
+        │  │  │   │  Next.js Container                      │ │   │ │
+        │  │  │   │  • Quiz API Routes (/api/quiz/*)        │ │   │ │
+        │  │  │   │  • Skills API Routes (/api/skills/*)    │ │   │ │
+        │  │  │   │  • Occupations API Routes (*)           │ │   │ │
+        │  │  │   │  • Frontend Pages                       │ │   │ │
+        │  │  │   │  • Bayesian Quiz Engine                 │ │   │ │
+        │  │  │   │  • AI Adaptive Questions (Bedrock)      │ │   │ │
+        │  │  │   └────────────────────────────────────────┘ │   │ │
+        │  │  └──────────────────────────────────────────────┘   │ │
+        │  └─────────────────────────────────────────────────────┘ │
+        │                                                            │
+        │  ┌─────────────────────────────────────────────────────┐ │
+        │  │       Private Subnets (Database Tier)              │ │
+        │  │  ┌──────────────────────────────────────────────┐   │ │
+        │  │  │        DynamoDB Tables                        │   │ │
+        │  │  │  • quiz_sessions (Bayesian state, responses)  │   │ │
+        │  │  │  • quiz_responses (user answers, timing)      │   │ │
+        │  │  │  • skill_mappings (skill code translations)   │   │ │
+        │  │  └──────────────────────────────────────────────┘   │ │
+        │  │                                                       │ │
+        │  │  ┌──────────────────────────────────────────────┐   │ │
+        │  │  │   NAT Gateway (for outbound HTTPS)           │   │ │
+        │  │  │   → Bedrock API calls                         │   │ │
+        │  │  └──────────────────────────────────────────────┘   │ │
+        │  └─────────────────────────────────────────────────────┘ │
+        └────────────────────────────────────────────────────────────┘
+                                     │
+                    ┌────────────────┴────────────────┐
+                    │                                 │
+        ┌───────────▼──────────────────┐  ┌──────────▼────────────┐
+        │   AWS Bedrock (Claude 3)      │  │   CloudWatch Logs    │
+        │   • Text Generation           │  │   • Application logs │
+        │   • AI Scenario Questions     │  │   • Performance      │
+        │   • Skills Analysis           │  └──────────────────────┘
+        └───────────┬──────────────────┘
+                    │
+        ┌───────────▼──────────────────┐
+        │  S3 Data Lake (Static Data)  │
+        │  • occupations.csv           │
+        │  • skills.csv                │
+        │  • ESCO taxonomy data        │
+        └──────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                            AGENTS LAYER (Bedrock Agentic AI)                                                  │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                                 │
+│   ┌──────────────────────────────────────────────────────────────────────────────────────────────────────┐   │
+│   │                            ORCHESTRATOR AGENT (Lambda)                                              │   │
+│   │  • Coordinates Agent One & Agent Two                                                               │   │
+│   │  • Routes queries to appropriate specialist agents                                                  │   │
+│   │  • Synthesizes results from both agents                                                            │   │
+│   │  • IAM Role: InvokeAgent, Bedrock API, Read KB1 + KB2                                              │   │
+│   └─────────────┬──────────────────────────────────────┬──────────────────────────────────────┘       │
+│                 │                                      │                                                 │
+│   ┌─────────────▼──────────────────┐   ┌──────────────▼───────────────────┐                           │
+│   │   AGENT ONE (Lambda)            │   │  AGENT TWO (Lambda)              │                           │
+│   │  • Specialized Agent #1         │   │  • Specialized Agent #2          │                           │
+│   │  • Domain: X                    │   │  • Domain: Y                     │                           │
+│   │  • IAM Role: Invoke Bedrock,    │   │  • IAM Role: Invoke Bedrock,     │                           │
+│   │    Read KB1                     │   │    Read KB2                      │                           │
+│   └─────────────┬──────────────────┘   └──────────────┬───────────────────┘                           │
+│                 │                                      │                                                 │
+│   ┌─────────────▼──────────────────┐   ┌──────────────▼───────────────────┐                           │
+│   │  KNOWLEDGE BASE ONE (S3)        │   │  KNOWLEDGE BASE TWO (S3)         │                           │
+│   │  • Document Store               │   │  • Document Store                │                           │
+│   │  • Indexed for Bedrock RAG      │   │  • Indexed for Bedrock RAG       │                           │
+│   └─────────────────────────────────┘   └──────────────────────────────────┘                           │
+│                                                                                                         │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                         DATA FLOW: QUIZ EXPERIENCE                                                              │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                                 │
+│  1. USER STARTS QUIZ                                                                                            │
+│     User → /api/quiz/start                                                                                      │
+│            ├─ Initialize Bayesian State (8 clusters)                                                            │
+│            ├─ Save session to DynamoDB                                                                          │
+│            └─ Return first Stage 1 question (4-5 questions)                                                     │
+│                                                                                                                 │
+│  2. USER ANSWERS STAGE 1 QUESTIONS                                                                              │
+│     User → /api/quiz/answer                                                                                     │
+│            ├─ Update cluster probability distribution (Bayes' theorem)                                          │
+│            ├─ Save response to DynamoDB                                                                         │
+│            ├─ Check if Stage 1 complete (require 4 answered)                                                    │
+│            └─ Return next question (or Stage 2 transition)                                                      │
+│                                                                                                                 │
+│  3. STAGE 2: ADAPTIVE SKILL QUESTIONS                                                                           │
+│     For AI Scenario Questions:                                                                                  │
+│            ├─ Generate personalized scenario using Bedrock Claude 3                                             │
+│            ├─ User answers in natural language                                                                  │
+│            ├─ Analyze response with Bedrock (extract skills)                                                    │
+│            ├─ Update Bayesian state with detected skills                                                        │
+│            └─ Calculate information gain for next question                                                      │
+│                                                                                                                 │
+│  4. QUIZ COMPLETION                                                                                             │
+│     When entropy < threshold or max questions reached:                                                          │
+│            ├─ Generate final skill profile                                                                      │
+│            ├─ Match to occupations using cluster probabilities                                                  │
+│            ├─ Save results to DynamoDB                                                                          │
+│            └─ Return results page with top occupations + confidence                                             │
+│                                                                                                                 │ 
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                           KEY TECHNOLOGIES & SERVICES                                                           │
+├─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                                 │
+│  FRONTEND                         BACKEND                      AWS SERVICES                                     │
+│  ───────────────────────────────────────────────────────────────────────────────────────                        │
+│  • Next.js 14 (React)             • TypeScript 5              • EC2 / ECS Fargate                               │
+│  • Tailwind CSS                   • Node.js runtime           • Application Load Balancer                       │
+│  • Lucide React Icons             • API Routes (Next.js)      • VPC (2 AZs)                                     │
+│                                   • Bayesian Engine           • DynamoDB                                        │
+│  QUIZ SYSTEM                      • Bedrock Integration       • S3 (Data + KBs)                                 │
+│  ───────────────────────────────────────────────────────────────────────────────────────                        │
+│  • Stage 1: 4-5 orientation Q     • Cluster inference         • CloudFront CDN                                  │
+│  • Stage 2: 8-15 adaptive Q       • Information gain calc     • CloudWatch Logs                                 │
+│  • Free-text + Scenario Q         • LLM skill analysis        • IAM Roles/Policies                              │
+│                                                                 • Bedrock (Claude 3)                            │
+│                                                                 • AWS CDK v2                                    │
+│                                                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
