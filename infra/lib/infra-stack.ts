@@ -9,19 +9,25 @@ import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as path from 'path';
 
+export interface InfraStackProps extends cdk.StackProps {
+  dbSecretArn?: string;
+}
+
 export class InfraStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  public readonly vpc: ec2.Vpc;
+
+  constructor(scope: Construct, id: string, props?: InfraStackProps) {
     super(scope, id, props);
 
     // Create VPC with public and private subnets
-    const vpc = new ec2.Vpc(this, 'KingsTrustVpc', {
+    this.vpc = new ec2.Vpc(this, 'KingsTrustVpc', {
       maxAzs: 2,
       natGateways: 1,
     });
 
     // Create ECS Cluster
     const cluster = new ecs.Cluster(this, 'KingsTrustCluster', {
-      vpc,
+      vpc: this.vpc,
       clusterName: 'kings-trust-cluster',
     });
 
@@ -49,6 +55,13 @@ export class InfraStack extends cdk.Stack {
       resources: ['*'],
     }));
 
+    // Grant Secrets Manager access for database credentials
+    taskRole.addToPolicy(new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: ['secretsmanager:GetSecretValue'],
+      resources: ['*'], // Restrict to specific secret ARN in production
+    }));
+
     // Create Fargate Task Definition
     const taskDefinition = new ecs.FargateTaskDefinition(this, 'NextJsTaskDef', {
       memoryLimitMiB: 8192,
@@ -73,7 +86,8 @@ export class InfraStack extends cdk.Stack {
       }),
       environment: {
         NODE_ENV: 'production',
-        BEDROCK_MODEL_ID: 'global.anthropic.claude-sonnet-4-5-20250929-v1:0'
+        BEDROCK_MODEL_ID: 'global.anthropic.claude-sonnet-4-5-20250929-v1:0',
+        ...(props?.dbSecretArn && { DB_SECRET_ARN: props.dbSecretArn }),
       },
       portMappings: [
         {
@@ -85,7 +99,7 @@ export class InfraStack extends cdk.Stack {
 
     // Create Application Load Balancer
     const alb = new elbv2.ApplicationLoadBalancer(this, 'NextJsALB', {
-      vpc,
+      vpc: this.vpc,
       internetFacing: true,
       loadBalancerName: 'kings-trust-alb',
       // Increase idle timeout to support long-running requests (default is 60s)
@@ -94,7 +108,7 @@ export class InfraStack extends cdk.Stack {
 
     // Create target group
     const targetGroup = new elbv2.ApplicationTargetGroup(this, 'NextJsTargetGroup', {
-      vpc,
+      vpc: this.vpc,
       port: 3000,
       protocol: elbv2.ApplicationProtocol.HTTP,
       targetType: elbv2.TargetType.IP,
@@ -130,7 +144,7 @@ export class InfraStack extends cdk.Stack {
       },
       securityGroups: [
         new ec2.SecurityGroup(this, 'ServiceSecurityGroup', {
-          vpc,
+          vpc: this.vpc,
           description: 'Security group for Next.js Fargate service',
           allowAllOutbound: true,
         }),

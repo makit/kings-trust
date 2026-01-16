@@ -29,14 +29,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Create writable directory for database
-RUN mkdir -p /app/data && chown -R nextjs:nodejs /app
-
-# Copy necessary files (public directory may not exist)
+# Copy necessary files
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/data ./data
-COPY --from=builder /app/esco.db /app/esco.db.template
 
 USER nextjs
 
@@ -45,5 +40,4 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Copy template database to writable location and start server
-CMD cp /app/esco.db.template /app/esco.db && node server.js
+CMD node server.js
