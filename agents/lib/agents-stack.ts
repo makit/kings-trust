@@ -1,7 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 import * as s3 from "aws-cdk-lib/aws-s3";
-import * as iam from "aws-cdk-lib/aws-iam";
 import { bedrock } from "@cdklabs/generative-ai-cdk-constructs";
 import { AgentAlias } from "@cdklabs/generative-ai-cdk-constructs/lib/cdk-lib/bedrock";
 
@@ -68,7 +67,7 @@ export class AgentsStack extends cdk.Stack {
       }),
     });
 
-    const eventAgent = new bedrock.Agent(this, "Agent", {
+    const eventAgent = new bedrock.Agent(this, "EventAgent", {
       foundationModel:
         bedrock.BedrockFoundationModel.ANTHROPIC_CLAUDE_HAIKU_V1_0,
       instruction:
@@ -82,7 +81,7 @@ export class AgentsStack extends cdk.Stack {
       aliasName: "eventProduction",
     });
 
-    const kingsTrustAgent = new bedrock.Agent(this, "Agent", {
+    const kingsTrustAgent = new bedrock.Agent(this, "KingsTrustAgent", {
       foundationModel:
         bedrock.BedrockFoundationModel.ANTHROPIC_CLAUDE_HAIKU_V1_0,
       instruction:
